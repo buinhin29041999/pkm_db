@@ -2,7 +2,6 @@ package com.phuonghn.pkm.common.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.lang.Nullable;
@@ -15,7 +14,6 @@ public class Translator {
     private final static Logger log = LoggerFactory.getLogger(Translator.class);
     private static ResourceBundleMessageSource messageSource;
 
-    @Autowired
     Translator(ResourceBundleMessageSource messageSource) {
         Translator.messageSource = messageSource;
     }

@@ -268,21 +268,6 @@ public class DataUtils {
         return sourceFormat.parse(dateStr);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> T cloneBean(T source) {
-        try {
-            if (source == null) {
-                return null;
-            } else {
-                T dto = (T) source.getClass().getConstructor().newInstance();
-                BeanUtils.copyProperties(source, dto);
-                return dto;
-            }
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public static boolean isNotEquals(Object a, Object b) {
         if (a == null && b == null) {
             return false;
