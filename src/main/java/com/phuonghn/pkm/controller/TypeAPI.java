@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/type")
 @RequiredArgsConstructor
 public class TypeAPI {
-    final TypeService typeService;
+    private final TypeService typeService;
 
     @GetMapping
     public ResponseEntity<?> findAll() {

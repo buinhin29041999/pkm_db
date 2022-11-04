@@ -19,8 +19,8 @@ public class TypeDetail {
 
     private Long typeBId;
 
-    private Double aAttackB;
+    private Double typeAAttackB;
 
-    private Double bAttackA;
+    private Double typeBAttackA;
 
 }

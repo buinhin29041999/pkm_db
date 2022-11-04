@@ -7,7 +7,6 @@ public class TypeDetailDTO {
     private Long id;
     private Long typeAId;
     private Long typeBId;
-    private Double aAttackB;
-    private Double bAttackA;
-
+    private Double typeAAttackB;
+    private Double typeBAttackA;
 }
