@@ -1,0 +1,27 @@
+server:
+  port: 8080
+  tomcat:
+    accept-count: 1000
+
+spring:
+  application:
+    name: WSLService
+  datasource:
+    url: jdbc:mysql://localhost:3306/pkm?useUnicode=yes&characterEncoding=UTF-8&serverTimezone=UTC&jdbcCompliantTruncation=false
+    username: root
+    password: pass
+  messages:
+    basename: messages
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        show_sql: true
+        format_sql: true
+        jdbc:
+          time_zone: "Asia/Ho_Chi_Minh"
+    open-in-view: false
+    hibernate:
+      #      ddl-auto: create
+      ddl-auto: update
+  #      ddl-auto: none
