@@ -1,5 +1,6 @@
 package com.phuonghn.pkm.config;
 
+import com.phuonghn.pkm.common.exeption.BadRequestException;
 import com.phuonghn.pkm.common.exeption.ErrorMessage;
 import com.phuonghn.pkm.common.exeption.ResourceNotFoundException;
 import com.phuonghn.pkm.common.exeption.TokenRefreshException;
@@ -42,6 +43,16 @@ public class RestExceptionHandler {
         log.error(ex.getMessage(), ex);
         return new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage(),
+                request.getDescription(false));
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage badRequestExceptionHandler(Exception ex, WebRequest request) {
+        log.error(ex.getMessage(), ex);
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage(),
                 request.getDescription(false));
     }
