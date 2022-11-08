@@ -4,4 +4,5 @@ import com.phuonghn.pkm.service.dto.TypeDetailDTO;
 
 public interface TypeDetailService {
     TypeDetailDTO create(TypeDetailDTO typeDetailDTO);
+
 }

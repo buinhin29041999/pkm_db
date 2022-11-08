@@ -15,12 +15,10 @@ public class TypeDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long typeAId;
+    private Long atkTypeId;
 
-    private Long typeBId;
+    private Long defTypeId;
 
-    private Double typeAAttackB;
-
-    private Double typeBAttackA;
+    private Double effect;
 
 }

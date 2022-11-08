@@ -5,8 +5,7 @@ import lombok.Data;
 @Data
 public class TypeDetailDTO {
     private Long id;
-    private Long typeAId;
-    private Long typeBId;
-    private Double typeAAttackB;
-    private Double typeBAttackA;
+    private Long atkTypeId;
+    private Long defTypeId;
+    private Double effect;
 }

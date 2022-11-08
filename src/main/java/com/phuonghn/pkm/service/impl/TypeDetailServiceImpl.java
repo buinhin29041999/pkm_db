@@ -21,10 +21,12 @@ public class TypeDetailServiceImpl implements TypeDetailService {
         if (typeDetailDTO.getId() != null) {
             throw new BadRequestException(Translator.toLocale("validate.01"));
         }
-        typeDetailRepo.findByTypeAIdAndTypeBId(typeDetailDTO.getTypeAId(), typeDetailDTO.getTypeBId()).ifPresent(type -> {
+        typeDetailRepo.findByAtkTypeIdAndDefTypeId(typeDetailDTO.getAtkTypeId(), typeDetailDTO.getDefTypeId()).ifPresent(type -> {
             throw new BadRequestException("Type detail is already defined");
         });
         TypeDetail typeDetail = typeDetailRepo.save(typeDetailMapper.toEntity(typeDetailDTO));
         return typeDetailMapper.toDto(typeDetail);
     }
+
+
 }
