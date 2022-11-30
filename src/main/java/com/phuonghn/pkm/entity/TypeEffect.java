@@ -9,7 +9,7 @@ import javax.persistence.Id;
 
 @Entity
 @Data
-public class TypeDetail {
+public class TypeEffect {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

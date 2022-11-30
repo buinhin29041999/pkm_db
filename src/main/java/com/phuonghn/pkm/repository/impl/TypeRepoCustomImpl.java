@@ -23,7 +23,7 @@ public class TypeRepoCustomImpl implements TypeRepoCustom {
         List<TypeDTO> rsDTOs = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         HashMap<Object, Object> map = new HashMap<>();
-        query.append("select t.*, td.effect from type t join type_detail td on t.id = td.def_type_id where td.atk_type_id = :typeId");
+        query.append("select t.*, td.effect from type t join type_effect td on t.id = td.def_type_id where td.atk_type_id = :typeId");
         map.put("typeId", typeId);
         Query queryExecuted = entityManager.createNativeQuery(query.toString());
         map.forEach((k, v) -> {
@@ -45,7 +45,7 @@ public class TypeRepoCustomImpl implements TypeRepoCustom {
         List<TypeDTO> rsDTOs = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         HashMap<Object, Object> map = new HashMap<>();
-        query.append("select t.*, td.effect from type t join type_detail td on t.id = td.atk_type_id where td.def_type_id in :typeId");
+        query.append("select t.*, td.effect from type t join type_effect td on t.id = td.atk_type_id where td.def_type_id in :typeId");
         map.put("typeId", typeIds);
         Query queryExecuted = entityManager.createNativeQuery(query.toString());
         map.forEach((k, v) -> {
