@@ -20,6 +20,11 @@ public class PokemonAPI {
         return new ResponseEntity<>(pokemonService.findAll(), HttpStatus.OK);
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<?> detail(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(pokemonService.detail(id), HttpStatus.OK);
+    }
+
     @PostMapping("search")
     public ResponseEntity<?> search(@RequestBody PokemonDTO pokemonDTO, Pageable pageable) {
         return new ResponseEntity<>(pokemonService.search(pokemonDTO, pageable), HttpStatus.OK);

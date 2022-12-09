@@ -25,3 +25,7 @@ spring:
       #      ddl-auto: create
       ddl-auto: update
   #      ddl-auto: none
+
+image:
+  pokemon-large: F:/Code/images/pokemon_large
+  pokemon-icon: F:/Code/images/pokemon_icon

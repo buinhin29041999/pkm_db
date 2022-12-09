@@ -11,4 +11,6 @@ public interface PokemonService {
     List<PokemonDTO> findAll();
 
     Page<PokemonDTO> search(PokemonDTO pokemonDTO, Pageable pageable);
+
+    PokemonDTO detail(Long id);
 }

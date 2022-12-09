@@ -162,4 +162,10 @@ public class Pokemon {
     @Basic
     @Column(name = "against_fairy", nullable = true, precision = 0)
     private Double againstFairy;
+    @Basic
+    @Column(name = "img_large", nullable = true, length = 255)
+    private String imgLarge;
+    @Basic
+    @Column(name = "img_icon", nullable = true, length = 255)
+    private String imgIcon;
 }

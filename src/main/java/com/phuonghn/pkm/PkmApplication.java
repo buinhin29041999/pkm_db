@@ -1,9 +1,6 @@
 package com.phuonghn.pkm;
 
-import com.phuonghn.pkm.common.utils.DataUtils;
-import com.phuonghn.pkm.entity.Type;
-import com.phuonghn.pkm.repository.AbilityRepo;
-import com.phuonghn.pkm.repository.TypeRepo;
+import com.phuonghn.pkm.repository.PokemonRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.CommandLineRunner;
@@ -12,15 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.Pattern;
 
 @SpringBootApplication
 @Slf4j
@@ -69,68 +59,63 @@ public class PkmApplication {
     }
 
     @Bean
-    public CommandLineRunner loadData(Environment env, TypeRepo typeRepo, AbilityRepo abilityRepo) {
+    public CommandLineRunner loadData(PokemonRepo pokemonRepo) {
         return (args) -> {
             try {
-                File myObj = new File("F:/Code/pkm_database/all_Moves.csv");
-                Scanner myReader = new Scanner(myObj);
-                while (myReader.hasNextLine()) {
-                    String data = myReader.nextLine();
-                    List<String> lstRes = new ArrayList<>();
-                    if (data.contains("\"")) {
-                        List<String> lstTmp = Arrays.asList(data.split("\""));
-                        lstRes.addAll(Arrays.asList(lstTmp.get(0).split(",")));
-                        lstRes.add("'" + lstTmp.get(1) + "'");
-                        lstRes.addAll(Arrays.asList(lstTmp.get(2).split(",")));
-                        if (lstRes.size() == 12) {
-                            Type type = typeRepo.findByName(lstRes.get(3)).get();
-                            lstRes.set(3, String.valueOf(type.getId()));
-                            lstRes.set(4, "'" + lstRes.get(4) + "'");
-                            lstRes.set(5, "'" + lstRes.get(5) + "'");
-                        } else if (lstRes.size() == 11) {
-                            Type type = typeRepo.findByName(lstRes.get(1)).get();
-                            lstRes.set(1, String.valueOf(type.getId()));
-                            lstRes.set(2, "'" + lstRes.get(2) + "'");
-                        }
-                    } else {
-                        lstRes = Arrays.asList(data.split(","));
-
-                        lstRes.set(2, "'" + lstRes.get(2) + "'");
-                        lstRes.set(3, "'" + lstRes.get(3) + "'");
-                        Type type = typeRepo.findByName(lstRes.get(1)).get();
-                        lstRes.set(1, String.valueOf(type.getId()));
-
-                    }
-                    lstRes.set(0, "'" + lstRes.get(0) + "'");
-                    if (!DataUtils.isNullOrEmpty(lstRes.get(7))) {
-                        lstRes.set(7, "'" + lstRes.get(7) + "'");
-                    }
-
-                    for (int i = 0; i < lstRes.size(); i++) {
-                        if (DataUtils.isNullOrEmpty(lstRes.get(i)) || "-".equals(lstRes.get(i))) {
-                            lstRes.set(i, null);
-                        }
-                    }
-                    lstRes.set(3, lstRes.get(3).replace("\'s", " s"));
-                    System.out.println("insert into move(name, typeId, category, effect, power, accuracy, pp, tm, prob, gen) VALUES (" + String.join(",", lstRes) + ");");
-                }
-                myReader.close();
-            } catch (FileNotFoundException e) {
+//                List<Pokemon> pokemons = pokemonRepo.findAll();
+//                if (!DataUtils.isNullOrEmpty(pokemons)) {
+//                    for (Pokemon pokemon : pokemons) {
+//                        pokemon.setImgIcon(pokemon.getPokedexNumber() + ".png");
+//                        pokemonRepo.save(pokemon);
+//                    }
+//                }
+//                File myObj = new File("F:/Code/pkm_database/all_Moves.csv");
+//                Scanner myReader = new Scanner(myObj);
+//                while (myReader.hasNextLine()) {
+//                    String data = myReader.nextLine();
+//                    List<String> lstRes = new ArrayList<>();
+//                    if (data.contains("\"")) {
+//                        List<String> lstTmp = Arrays.asList(data.split("\""));
+//                        lstRes.addAll(Arrays.asList(lstTmp.get(0).split(",")));
+//                        lstRes.add("'" + lstTmp.get(1) + "'");
+//                        lstRes.addAll(Arrays.asList(lstTmp.get(2).split(",")));
+//                        if (lstRes.size() == 12) {
+//                            Type type = typeRepo.findByName(lstRes.get(3)).get();
+//                            lstRes.set(3, String.valueOf(type.getId()));
+//                            lstRes.set(4, "'" + lstRes.get(4) + "'");
+//                            lstRes.set(5, "'" + lstRes.get(5) + "'");
+//                        } else if (lstRes.size() == 11) {
+//                            Type type = typeRepo.findByName(lstRes.get(1)).get();
+//                            lstRes.set(1, String.valueOf(type.getId()));
+//                            lstRes.set(2, "'" + lstRes.get(2) + "'");
+//                        }
+//                    } else {
+//                        lstRes = Arrays.asList(data.split(","));
+//
+//                        lstRes.set(2, "'" + lstRes.get(2) + "'");
+//                        lstRes.set(3, "'" + lstRes.get(3) + "'");
+//                        Type type = typeRepo.findByName(lstRes.get(1)).get();
+//                        lstRes.set(1, String.valueOf(type.getId()));
+//
+//                    }
+//                    lstRes.set(0, "'" + lstRes.get(0) + "'");
+//                    if (!DataUtils.isNullOrEmpty(lstRes.get(7))) {
+//                        lstRes.set(7, "'" + lstRes.get(7) + "'");
+//                    }
+//
+//                    for (int i = 0; i < lstRes.size(); i++) {
+//                        if (DataUtils.isNullOrEmpty(lstRes.get(i)) || "-".equals(lstRes.get(i))) {
+//                            lstRes.set(i, null);
+//                        }
+//                    }
+//                    lstRes.set(3, lstRes.get(3).replace("\'s", " s"));
+//                    System.out.println("insert into move(name, typeId, category, effect, power, accuracy, pp, tm, prob, gen) VALUES (" + String.join(",", lstRes) + ");");
+//                }
+//                myReader.close();
+            } catch (Exception e) {
                 System.out.println("An error occurred.");
                 e.printStackTrace();
             }
         };
-    }
-
-    public static boolean patternMatches(String s, String regexPattern) {
-        return Pattern.compile(regexPattern)
-                .matcher(s)
-                .matches();
-    }
-
-    public Boolean testUsingSimpleRegex() {
-        String phoneNumber = "0123456789";
-        String regexPattern = "^0\\d{9}$";
-        return patternMatches(phoneNumber, regexPattern);
     }
 }
