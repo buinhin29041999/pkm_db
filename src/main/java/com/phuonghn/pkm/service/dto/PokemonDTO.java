@@ -1,5 +1,6 @@
 package com.phuonghn.pkm.service.dto;
 
+import com.phuonghn.pkm.entity.Ability;
 import com.phuonghn.pkm.entity.Type;
 import lombok.Data;
 
@@ -27,6 +28,9 @@ public class PokemonDTO implements Serializable {
     private Long ability1;
     private Long ability2;
     private Long abilityHidden;
+    private Ability ability1E;
+    private Ability ability2E;
+    private Ability abilityHiddenE;
     private Integer totalPoints;
     private Integer hp;
     private Integer attack;

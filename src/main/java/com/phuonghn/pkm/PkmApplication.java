@@ -65,7 +65,11 @@ public class PkmApplication {
 //                List<Pokemon> pokemons = pokemonRepo.findAll();
 //                if (!DataUtils.isNullOrEmpty(pokemons)) {
 //                    for (Pokemon pokemon : pokemons) {
-//                        pokemon.setImgIcon(pokemon.getPokedexNumber() + ".png");
+//                        if (pokemon.getName().contains("Mega ")) {
+//                            pokemon.setImgLarge(pokemon.getPokedexNumber() + "-mega.png");
+//                        } else {
+//                            pokemon.setImgLarge(pokemon.getPokedexNumber() + ".png");
+//                        }
 //                        pokemonRepo.save(pokemon);
 //                    }
 //                }

@@ -1,8 +1,12 @@
 package com.phuonghn.pkm.service.impl;
 
 import com.phuonghn.pkm.common.exeption.BusinessException;
+import com.phuonghn.pkm.entity.Ability;
 import com.phuonghn.pkm.entity.Pokemon;
+import com.phuonghn.pkm.entity.Type;
+import com.phuonghn.pkm.repository.AbilityRepo;
 import com.phuonghn.pkm.repository.PokemonRepo;
+import com.phuonghn.pkm.repository.TypeRepo;
 import com.phuonghn.pkm.service.PokemonService;
 import com.phuonghn.pkm.service.dto.PokemonDTO;
 import com.phuonghn.pkm.service.mapper.PokemonMapper;
@@ -30,6 +34,8 @@ public class PokemonServiceImpl implements PokemonService {
     private String imgPokemonLarge;
     @Value("${image.pokemon-icon}")
     private String imgPokemonIcon;
+    private final TypeRepo typeRepo;
+    private final AbilityRepo abilityRepo;
 
     @Override
     public List<PokemonDTO> findAll() {
@@ -52,6 +58,27 @@ public class PokemonServiceImpl implements PokemonService {
             if (pokemonOptional.isPresent()) {
                 PokemonDTO pokemonDTO = pokemonMapper.toDto(pokemonOptional.get());
                 pokemonDTO.setImgLarge("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(imgPokemonLarge + "/" + pokemonDTO.getImgLarge()))));
+                if (pokemonDTO.getType1() != null) {
+                    Optional<Type> typeOptional1 = typeRepo.findById(pokemonDTO.getType1());
+                    typeOptional1.ifPresent(pokemonDTO::setType1Entity);
+                }
+                if (pokemonDTO.getType2() != null) {
+                    Optional<Type> typeOptional2 = typeRepo.findById(pokemonDTO.getType2());
+                    typeOptional2.ifPresent(pokemonDTO::setType2Entity);
+                }
+
+                if (pokemonDTO.getAbility1() != null) {
+                    Optional<Ability> abilityOptional1 = abilityRepo.findById(pokemonDTO.getAbility1());
+                    abilityOptional1.ifPresent(pokemonDTO::setAbility1E);
+                }
+                if (pokemonDTO.getAbility2() != null) {
+                    Optional<Ability> abilityOptional2 = abilityRepo.findById(pokemonDTO.getAbility2());
+                    abilityOptional2.ifPresent(pokemonDTO::setAbility2E);
+                }
+                if (pokemonDTO.getAbilityHidden() != null) {
+                    Optional<Ability> abilityOptional3 = abilityRepo.findById(pokemonDTO.getAbilityHidden());
+                    abilityOptional3.ifPresent(pokemonDTO::setAbilityHiddenE);
+                }
                 return pokemonDTO;
             }
             return null;

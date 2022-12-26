@@ -17,4 +17,7 @@ public class Ability {
     @Basic
     @Column(name = "description", nullable = true, length = 500)
     private String description;
+    @Basic
+    @Column(name = "desc_in_depth", nullable = true, length = 500)
+    private String descInDepth;
 }

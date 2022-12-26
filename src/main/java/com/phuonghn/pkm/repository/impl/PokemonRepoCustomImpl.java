@@ -1,7 +1,9 @@
 package com.phuonghn.pkm.repository.impl;
 
 import com.phuonghn.pkm.common.utils.DataUtils;
+import com.phuonghn.pkm.entity.Ability;
 import com.phuonghn.pkm.entity.Type;
+import com.phuonghn.pkm.repository.AbilityRepo;
 import com.phuonghn.pkm.repository.PokemonRepoCustom;
 import com.phuonghn.pkm.repository.TypeRepo;
 import com.phuonghn.pkm.service.dto.PokemonDTO;
@@ -30,9 +32,11 @@ public class PokemonRepoCustomImpl implements PokemonRepoCustom {
     @Value("${image.pokemon-icon}")
     private String imgPokemonIcon;
     private final TypeRepo typeRepo;
+    private final AbilityRepo abilityRepo;
 
-    public PokemonRepoCustomImpl(TypeRepo typeRepo) {
+    public PokemonRepoCustomImpl(TypeRepo typeRepo, AbilityRepo abilityRepo) {
         this.typeRepo = typeRepo;
+        this.abilityRepo = abilityRepo;
     }
 
     @Override
@@ -97,6 +101,18 @@ public class PokemonRepoCustomImpl implements PokemonRepoCustom {
                         if (e.getType2() != null) {
                             Optional<Type> typeOptional2 = typeRepo.findById(e.getType2());
                             typeOptional2.ifPresent(e::setType2Entity);
+                        }
+                        if (e.getAbility1() != null) {
+                            Optional<Ability> abilityOptional1 = abilityRepo.findById(e.getAbility1());
+                            abilityOptional1.ifPresent(e::setAbility1E);
+                        }
+                        if (e.getAbility2() != null) {
+                            Optional<Ability> abilityOptional2 = abilityRepo.findById(e.getAbility2());
+                            abilityOptional2.ifPresent(e::setAbility2E);
+                        }
+                        if (e.getAbilityHidden() != null) {
+                            Optional<Ability> abilityOptional3 = abilityRepo.findById(e.getAbilityHidden());
+                            abilityOptional3.ifPresent(e::setAbilityHiddenE);
                         }
 
                     } catch (IOException ex) {
