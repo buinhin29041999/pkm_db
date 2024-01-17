@@ -3,11 +3,15 @@ package com.phuonghn.pkm.repository.impl;
 import com.phuonghn.pkm.common.utils.DataUtils;
 import com.phuonghn.pkm.repository.TypeRepoCustom;
 import com.phuonghn.pkm.service.dto.TypeDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,5 +64,38 @@ public class TypeRepoCustomImpl implements TypeRepoCustom {
                     "effect"), objects, TypeDTO.class));
         }
         return rsDTOs;
+    }
+
+    @Override
+    public Page<TypeDTO> search(TypeDTO dto, Pageable pageable) {
+        List<TypeDTO> rsDTOs = new ArrayList<>();
+        StringBuilder query = new StringBuilder();
+        StringBuilder count = new StringBuilder();
+        HashMap<Object, Object> map = new HashMap<>();
+        query.append("select id, code, name, bg_hex_color, text_hex_color from type where 1 = 1");
+        if (!DataUtils.isNullOrEmpty(dto.getCode())) {
+            query.append(" and code like :code");
+            map.put("code", DataUtils.makeLikeQuery(dto.getCode()));
+        }
+        if (!DataUtils.isNullOrEmpty(dto.getName())) {
+            query.append(" and name like :name");
+            map.put("name", DataUtils.makeLikeQuery(dto.getName()));
+        }
+
+        count.append("select count(*) from ( ").append(query).append(") as total");
+        Query queryExecuted = entityManager.createNativeQuery(query.toString());
+        Query countQuery = entityManager.createNativeQuery(count.toString());
+        long total = 0L;
+        map.forEach((k, v) -> {
+            queryExecuted.setParameter(k.toString(), v);
+            countQuery.setParameter(k.toString(), v);
+        });
+        queryExecuted.setFirstResult((int) pageable.getOffset()).setMaxResults(pageable.getPageSize()).getResultList();
+        List<Object[]> objects = queryExecuted.getResultList();
+        if (!objects.isEmpty()) {
+            rsDTOs.addAll(DataUtils.convertListObjectsToClass(DataUtils.changeParamTypeSqlToJava("id, code, name, bg_hex_color, text_hex_color"), objects, TypeDTO.class));
+            total = ((BigInteger) countQuery.getSingleResult()).longValue();
+        }
+        return new PageImpl<>(rsDTOs, pageable, total);
     }
 }

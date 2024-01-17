@@ -97,7 +97,7 @@ public class DataUtils {
     public static String makeLikeQuery(String s) {
         if (isNullOrEmpty(s))
             return null;
-        s = s.trim().toLowerCase().replace("!", DEFAULT_ESCAPE_CHAR_QUERY + "!")
+        s = s.trim().replace("!", DEFAULT_ESCAPE_CHAR_QUERY + "!")
                 .replace("%", DEFAULT_ESCAPE_CHAR_QUERY + "%")
                 .replace("_", DEFAULT_ESCAPE_CHAR_QUERY + "_");
         return "%" + s + "%";

@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class TypeDTO {
     private Long id;
+    private String code;
     private String name;
     private String bgHexColor;
     private String textHexColor;

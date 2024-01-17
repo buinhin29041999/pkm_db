@@ -9,7 +9,10 @@ import com.phuonghn.pkm.service.dto.TypeDTO;
 import com.phuonghn.pkm.service.dto.TypeDetailDTO;
 import com.phuonghn.pkm.service.mapper.TypeMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class TypeServiceImpl implements TypeService {
     final TypeRepo typeRepo;
     final TypeMapper typeMapper;
@@ -28,6 +32,11 @@ public class TypeServiceImpl implements TypeService {
     }
 
     @Override
+    public Page<TypeDTO> search(TypeDTO dto, Pageable pageable) {
+        return typeRepo.search(dto, pageable);
+    }
+
+    @Override
     public TypeDTO create(TypeDTO typeDTO) {
         if (typeDTO.getId() != null) {
             throw new BadRequestException(Translator.toLocale("validate.01"));
@@ -35,8 +44,9 @@ public class TypeServiceImpl implements TypeService {
         typeRepo.findByName(typeDTO.getName()).ifPresent(type -> {
             throw new BadRequestException("Type is already defined");
         });
-        Type type = typeRepo.save(typeMapper.toEntity(typeDTO));
-        return typeMapper.toDto(type);
+//        Type type = typeRepo.save(typeMapper.toEntity(typeDTO));
+        Type type = typeMapper.toEntity(typeDTO);
+        return null;
     }
 
     @Override

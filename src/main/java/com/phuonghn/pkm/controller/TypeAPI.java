@@ -5,6 +5,7 @@ import com.phuonghn.pkm.service.TypeService;
 import com.phuonghn.pkm.service.dto.TypeDTO;
 import com.phuonghn.pkm.service.dto.TypeDetailDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,11 @@ public class TypeAPI {
     @GetMapping
     public ResponseEntity<?> findAll() {
         return new ResponseEntity<>(typeService.findAll(), HttpStatus.OK);
+    }
+
+    @PostMapping("search")
+    public ResponseEntity<?> search(@RequestBody TypeDTO dto, Pageable pageable) {
+        return new ResponseEntity<>(typeService.search(dto, pageable), HttpStatus.OK);
     }
 
     @PostMapping

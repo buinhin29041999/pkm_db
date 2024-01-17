@@ -11,6 +11,8 @@ import org.springframework.core.env.Environment;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Random;
 
 @SpringBootApplication
 @Slf4j
@@ -62,64 +64,142 @@ public class PkmApplication {
     public CommandLineRunner loadData(PokemonRepo pokemonRepo) {
         return (args) -> {
             try {
-//                List<Pokemon> pokemons = pokemonRepo.findAll();
-//                if (!DataUtils.isNullOrEmpty(pokemons)) {
-//                    for (Pokemon pokemon : pokemons) {
-//                        if (pokemon.getName().contains("Mega ")) {
-//                            pokemon.setImgLarge(pokemon.getPokedexNumber() + "-mega.png");
-//                        } else {
-//                            pokemon.setImgLarge(pokemon.getPokedexNumber() + ".png");
-//                        }
-//                        pokemonRepo.save(pokemon);
-//                    }
-//                }
-//                File myObj = new File("F:/Code/pkm_database/all_Moves.csv");
-//                Scanner myReader = new Scanner(myObj);
-//                while (myReader.hasNextLine()) {
-//                    String data = myReader.nextLine();
-//                    List<String> lstRes = new ArrayList<>();
-//                    if (data.contains("\"")) {
-//                        List<String> lstTmp = Arrays.asList(data.split("\""));
-//                        lstRes.addAll(Arrays.asList(lstTmp.get(0).split(",")));
-//                        lstRes.add("'" + lstTmp.get(1) + "'");
-//                        lstRes.addAll(Arrays.asList(lstTmp.get(2).split(",")));
-//                        if (lstRes.size() == 12) {
-//                            Type type = typeRepo.findByName(lstRes.get(3)).get();
-//                            lstRes.set(3, String.valueOf(type.getId()));
-//                            lstRes.set(4, "'" + lstRes.get(4) + "'");
-//                            lstRes.set(5, "'" + lstRes.get(5) + "'");
-//                        } else if (lstRes.size() == 11) {
-//                            Type type = typeRepo.findByName(lstRes.get(1)).get();
-//                            lstRes.set(1, String.valueOf(type.getId()));
-//                            lstRes.set(2, "'" + lstRes.get(2) + "'");
-//                        }
-//                    } else {
-//                        lstRes = Arrays.asList(data.split(","));
-//
-//                        lstRes.set(2, "'" + lstRes.get(2) + "'");
-//                        lstRes.set(3, "'" + lstRes.get(3) + "'");
-//                        Type type = typeRepo.findByName(lstRes.get(1)).get();
-//                        lstRes.set(1, String.valueOf(type.getId()));
-//
-//                    }
-//                    lstRes.set(0, "'" + lstRes.get(0) + "'");
-//                    if (!DataUtils.isNullOrEmpty(lstRes.get(7))) {
-//                        lstRes.set(7, "'" + lstRes.get(7) + "'");
-//                    }
-//
-//                    for (int i = 0; i < lstRes.size(); i++) {
-//                        if (DataUtils.isNullOrEmpty(lstRes.get(i)) || "-".equals(lstRes.get(i))) {
-//                            lstRes.set(i, null);
-//                        }
-//                    }
-//                    lstRes.set(3, lstRes.get(3).replace("\'s", " s"));
-//                    System.out.println("insert into move(name, typeId, category, effect, power, accuracy, pp, tm, prob, gen) VALUES (" + String.join(",", lstRes) + ");");
-//                }
-//                myReader.close();
             } catch (Exception e) {
                 System.out.println("An error occurred.");
                 e.printStackTrace();
             }
         };
     }
+
+//    @Test
+//    public void genReceipt() {
+//        try (FileInputStream file = new FileInputStream("F:/oldData.xlsx")) {
+//            Workbook workbook = WorkbookFactory.create(file);
+//            Sheet sheet = workbook.getSheetAt(0); // Assuming you want to read from the first sheet
+//            int i = 0;
+//            List<ReceiptDTO> receiptDTOS = new ArrayList<>();
+//            for (Row row : sheet) {
+//                if (i == 0) {
+//                    i++;
+//                    continue;
+//                }
+//                ReceiptDTO receiptDTO = new ReceiptDTO();
+//                receiptDTO.setSubscriberId((long) row.getCell(5).getNumericCellValue());
+//                receiptDTO.setCustomerOrderId((long) row.getCell(8).getNumericCellValue());
+//                receiptDTO.setProductOfferId((long) row.getCell(7).getNumericCellValue());
+//                receiptDTO.setPlanId(row.getCell(9).getStringCellValue());
+//                receiptDTO.setEffectiveDate(row.getCell(0).getDateCellValue());
+//                receiptDTO.setExpireDate(row.getCell(1).getDateCellValue());
+//                receiptDTO.setTotal((long) row.getCell(2).getNumericCellValue());
+//                receiptDTO.setStatus(row.getCell(3).getStringCellValue());
+//                if (row.getCell(4).getCellType().equals(NUMERIC)) {
+//                    receiptDTO.setTransCode(String.valueOf(row.getCell(4).getNumericCellValue()));
+//                } else {
+//                    receiptDTO.setTransCode(!isNullOrEmpty(String.valueOf(row.getCell(4).getStringCellValue())) ? String.valueOf(row.getCell(4).getStringCellValue()) : null);
+//                }
+//                receiptDTO.setNote(row.getCell(10) != null);
+//                receiptDTOS.add(receiptDTO);
+//            }
+//
+//            StringBuilder sqlReceipt = new StringBuilder();
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//
+//
+//            // xử lý bản ghi có note
+//            Map<Long, List<ReceiptDTO>> groupedByOrderId = receiptDTOS.stream()
+//                    .collect(Collectors.groupingBy(ReceiptDTO::getCustomerOrderId));
+//            for (Long orderId : groupedByOrderId.keySet()) {
+//                List<ReceiptDTO> lstByOrderId = groupedByOrderId.get(orderId);
+//                Map<String, List<ReceiptDTO>> groupedByPlanId = lstByOrderId.stream()
+//                        .collect(Collectors.groupingBy(ReceiptDTO::getPlanId));
+//                for (String planId : groupedByPlanId.keySet()) {
+//                    List<String> idRandoms = new ArrayList<>();
+//                    List<ReceiptDTO> rcs = groupedByPlanId.get(planId);
+//                    ReceiptDTO receiptDTO = rcs.get(0);
+//                    sqlReceipt.append("INSERT INTO RECEIPT_TEMP (SUBSCRIBER_ID,CREATED_DATE,CREATED_USER,PRODUCT_OFFER_ID,PLAN_ID,CUSTOMER_ORDER_ID) VALUES ");
+//                    sqlReceipt.append("(").append(receiptDTO.getSubscriberId()).append(",");
+//                    sqlReceipt.append("NOW()").append(",");
+//                    sqlReceipt.append(toParamSQL("ADMIN")).append(",");
+//                    sqlReceipt.append(receiptDTO.getProductOfferId()).append(",");
+//                    sqlReceipt.append(toParamSQL(receiptDTO.getPlanId())).append(",");
+//                    sqlReceipt.append(receiptDTO.getCustomerOrderId()).append(");\n");
+//                    for (ReceiptDTO rDto : rcs) {
+//                        String idRandom = rDto.getCustomerOrderId().toString() + genUniqueCodeFourChar(idRandoms);
+//                        idRandoms.add(idRandom);
+//                        sqlReceipt.append("INSERT INTO RECEIPT_TEMP_DETAIL (RECEIPT_TEMP_DETAIL_CODE,RECEIPT_TEMP_ID,TRANS_STATUS,EFFECTIVE_DATE,EXPIRE_DATE,");
+//                        sqlReceipt.append("TOTAL_AMOUNT_VAT,BCCS_TRANS_ID,APPROVE_DATE,APPROVE_USER,DISCOUNT,");
+//                        sqlReceipt.append("AMOUNT_EACH_STORAGE,TOTAL_DISCOUNT) ");
+//                        sqlReceipt.append("VALUES (").append(idRandom).append(",");
+//                        sqlReceipt.append("(select RECEIPT_TEMP_ID from RECEIPT_TEMP where PLAN_ID = ").append(toParamSQL(rDto.getPlanId())).append(")").append(",");
+//                        // transaction status
+//                        if (rDto.getNote()) {
+//                            sqlReceipt.append("null");
+//                        } else {
+//                            if (rDto.getStatus().contains("Đã")) {
+//                                sqlReceipt.append("2");
+//                            } else {
+//                                sqlReceipt.append("0");
+//                            }
+//                        }
+//                        sqlReceipt.append(",");
+//                        sqlReceipt.append(toParamSQL(sdf.format(rDto.getEffectiveDate()))).append(",");
+//                        sqlReceipt.append(toParamSQL(sdf.format(rDto.getExpireDate()))).append(",");
+//                        sqlReceipt.append(rDto.getTotal()).append(",");
+//                        sqlReceipt.append(!isNullOrEmpty(rDto.getTransCode()) ? toParamSQL(rDto.getTransCode()) : "null").append(",");
+//                        if (rDto.getStatus().contains("Đã")) {
+//                            sqlReceipt.append("NOW()").append(",");
+//                            sqlReceipt.append(toParamSQL("ADMIN")).append(",");
+//                        } else {
+//                            sqlReceipt.append("null").append(",");
+//                            sqlReceipt.append("null").append(",");
+//                        }
+//                        sqlReceipt.append("0").append(",");
+//                        if (groupedByPlanId.size() > 1) {
+//                            sqlReceipt.append(rDto.getTotal() / groupedByPlanId.size());
+//                        } else {
+//                            sqlReceipt.append(rDto.getTotal());
+//                        }
+//                        sqlReceipt.append(",");
+//                        sqlReceipt.append("0");
+//                        sqlReceipt.append(");\n");
+//                    }
+//                    sqlReceipt.append("\n\n");
+//                }
+//            }
+//            System.out.println("");
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    public String toParamSQL(String s) {
+        return "'" + s + "'";
+    }
+
+    public String genUniqueCodeFourChar(List<String> idRandoms) {
+        Random random = new Random();
+        String idRandom = String.format("%04d", random.nextInt(10000));
+        String finalIdRandom = idRandom;
+        if (idRandoms.stream().anyMatch(e -> e.equals(finalIdRandom))) {
+            idRandom = genUniqueCodeFourChar(idRandoms);
+        }
+        idRandoms.add(idRandom);
+        return idRandom;
+    }
+
+    public static boolean isNullOrEmpty(CharSequence cs) {
+        int strLen;
+        if (cs == null || (strLen = cs.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(cs.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 }
