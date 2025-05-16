@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface TypeRepo extends JpaRepository<Type, Long>, TypeRepoCustom {
     Optional<Type> findByName(String name);
+
+    Optional<Type> findByCode(String code);
 }

@@ -20,4 +20,7 @@ public class Ability {
     @Basic
     @Column(name = "desc_in_depth", nullable = true, length = 500)
     private String descInDepth;
+    @Basic
+    @Column(name = "generation", nullable = true, length = 500)
+    private Long generation;
 }

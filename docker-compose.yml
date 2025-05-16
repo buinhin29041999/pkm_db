@@ -1,0 +1,42 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: database
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: pkm
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - pkm_net
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"   # Client apps kết nối
+      - "9093:9093"   # Controller nội bộ
+    environment:
+      - KAFKA_KRAFT_MODE=true                            # Bắt buộc để bật KRaft
+      - KAFKA_CFG_NODE_ID=1                              # ID của node
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller        # Chạy cả broker & controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093  # 1 node trong cluster
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    volumes:
+      - kafka_data:/bitnami/kafka
+    restart: unless-stopped
+    networks:
+      - pkm_net
+
+networks:
+  pkm_net:
+    driver: bridge
+volumes:
+  mysql_data:
+  kafka_data:

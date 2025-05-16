@@ -95,23 +95,23 @@ public class PokemonRepoCustomImpl implements PokemonRepoCustom {
                         }
 
                         if (e.getType1() != null) {
-                            Optional<Type> typeOptional1 = typeRepo.findById(e.getType1());
+                            Optional<Type> typeOptional1 = typeRepo.findByCode(e.getType1());
                             typeOptional1.ifPresent(e::setType1Entity);
                         }
                         if (e.getType2() != null) {
-                            Optional<Type> typeOptional2 = typeRepo.findById(e.getType2());
+                            Optional<Type> typeOptional2 = typeRepo.findByCode(e.getType2());
                             typeOptional2.ifPresent(e::setType2Entity);
                         }
                         if (e.getAbility1() != null) {
-                            Optional<Ability> abilityOptional1 = abilityRepo.findById(e.getAbility1());
+                            Optional<Ability> abilityOptional1 = abilityRepo.findByName(e.getAbility1());
                             abilityOptional1.ifPresent(e::setAbility1E);
                         }
                         if (e.getAbility2() != null) {
-                            Optional<Ability> abilityOptional2 = abilityRepo.findById(e.getAbility2());
+                            Optional<Ability> abilityOptional2 = abilityRepo.findByName(e.getAbility2());
                             abilityOptional2.ifPresent(e::setAbility2E);
                         }
                         if (e.getAbilityHidden() != null) {
-                            Optional<Ability> abilityOptional3 = abilityRepo.findById(e.getAbilityHidden());
+                            Optional<Ability> abilityOptional3 = abilityRepo.findByName(e.getAbilityHidden());
                             abilityOptional3.ifPresent(e::setAbilityHiddenE);
                         }
 
