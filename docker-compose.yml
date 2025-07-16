@@ -34,9 +34,23 @@ services:
     networks:
       - pkm_net
 
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: always
+    networks:
+      - pkm_net
+
+
 networks:
   pkm_net:
     driver: bridge
 volumes:
   mysql_data:
   kafka_data:
+  redis_data:

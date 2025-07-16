@@ -1,5 +1,7 @@
 package com.phuonghn.pkm.controller;
 
+import com.phuonghn.pkm.common.Constants;
+import com.phuonghn.pkm.config.kafka.MessageProducer;
 import com.phuonghn.pkm.service.PokemonService;
 import com.phuonghn.pkm.service.dto.PokemonDTO;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +13,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/pokemon")
 @RequiredArgsConstructor
-public class PokemonAPI {
+public class PokemonController {
 
     private final PokemonService pokemonService;
+    private final MessageProducer messageProducer;
 
     @GetMapping
     public ResponseEntity<?> findAll() {
@@ -27,6 +30,7 @@ public class PokemonAPI {
 
     @PostMapping("search")
     public ResponseEntity<?> search(@RequestBody PokemonDTO pokemonDTO, Pageable pageable) {
+        messageProducer.sendMessage(Constants.KAFKA_TOPIC.PKM_SEARCH, pokemonDTO.getName());
         return new ResponseEntity<>(pokemonService.search(pokemonDTO, pageable), HttpStatus.OK);
     }
 

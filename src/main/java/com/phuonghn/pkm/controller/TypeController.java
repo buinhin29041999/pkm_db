@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/type")
 @RequiredArgsConstructor
-public class TypeAPI {
+public class TypeController {
     private final TypeService typeService;
     private final TypeDetailService typeDetailService;
 
