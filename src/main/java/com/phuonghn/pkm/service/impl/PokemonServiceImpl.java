@@ -10,6 +10,7 @@ import com.phuonghn.pkm.service.dto.PokemonDTO;
 import com.phuonghn.pkm.service.mapper.PokemonMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +55,8 @@ public class PokemonServiceImpl implements PokemonService {
             Optional<Pokemon> pokemonOptional = pokemonRepo.findById(id);
             if (pokemonOptional.isPresent()) {
                 PokemonDTO pokemonDTO = pokemonMapper.toDto(pokemonOptional.get());
-                pokemonDTO.setImgLarge("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(Paths.get(imgPokemonLarge + "/" + pokemonDTO.getImgLarge()))));
+                ClassPathResource resource = new ClassPathResource(imgPokemonLarge + pokemonDTO.getImgLarge());
+                pokemonDTO.setImgLarge("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath())));
                 if (pokemonDTO.getType1() != null) {
                     typeRepo.findByCode(pokemonDTO.getType1()).ifPresent(pokemonDTO::setType1Entity);
                 }

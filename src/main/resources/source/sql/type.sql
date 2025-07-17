@@ -1,36 +1,18 @@
-INSERT INTO pkm.type (code, name)
-VALUES ('NORMAL', 'Normal');
-INSERT INTO pkm.type (code, name)
-VALUES ('FIRE', 'Fire');
-INSERT INTO pkm.type (code, name)
-VALUES ('WATER', 'Water');
-INSERT INTO pkm.type (code, name)
-VALUES ('GRASS', 'Grass');
-INSERT INTO pkm.type (code, name)
-VALUES ('ELECTRIC', 'Electric');
-INSERT INTO pkm.type (code, name)
-VALUES ('ICE', 'Ice');
-INSERT INTO pkm.type (code, name)
-VALUES ('FIGHTING', 'Fighting');
-INSERT INTO pkm.type (code, name)
-VALUES ('POISON', 'Poison');
-INSERT INTO pkm.type (code, name)
-VALUES ('GROUND', 'Ground');
-INSERT INTO pkm.type (code, name)
-VALUES ('FLYING', 'Flying');
-INSERT INTO pkm.type (code, name)
-VALUES ('SPYCHIC', 'Spychic');
-INSERT INTO pkm.type (code, name)
-VALUES ('BUG', 'Bug');
-INSERT INTO pkm.type (code, name)
-VALUES ('ROCK', 'Rock');
-INSERT INTO pkm.type (code, name)
-VALUES ('GHOST', 'Ghost');
-INSERT INTO pkm.type (code, name)
-VALUES ('DRAGON', 'Dragon');
-INSERT INTO pkm.type (code, name)
-VALUES ('DARK', 'Dark');
-INSERT INTO pkm.type (code, name)
-VALUES ('STEEL', 'Steel');
-INSERT INTO pkm.type (code, name)
-VALUES ('FAIRY', 'Fairy');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#A8A878', 'NORMAL', 'Normal', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#F08030', 'FIRE', 'Fire', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#6890F0', 'WATER', 'Water', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#78C850', 'GRASS', 'Grass', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#F8D030', 'ELECTRIC', 'Electric', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#98D8D8', 'ICE', 'Ice', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#C03028', 'FIGHTING', 'Fighting', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#A040A0', 'POISON', 'Poison', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#E0C068', 'GROUND', 'Ground', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#A890F0', 'FLYING', 'Flying', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#F85888', 'SPYCHIC', 'Spychic', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#A8B820', 'BUG', 'Bug', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#B8A038', 'ROCK', 'Rock', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#705898', 'GHOST', 'Ghost', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#7038F8', 'DRAGON', 'Dragon', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#705848', 'DARK', 'Dark', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#B8B8D0', 'STEEL', 'Steel', '#FFFFFF');
+INSERT INTO pkm.type (bg_hex_color, code, name, text_hex_color) VALUES ('#EE99AC', 'FAIRY', 'Fairy', '#FFFFFF');

@@ -41,8 +41,8 @@ spring:
   #      ddl-auto: none
 
 image:
-  pokemon-large: F:/Code/images/pokemon_large
-  pokemon-icon: F:/Code/images/pokemon_icon
+  pokemon-large: source/image/pokemon_large/
+  pokemon-icon: source/image/pokemon_icon/
 kafka:
   server: localhost
   port: 9092
