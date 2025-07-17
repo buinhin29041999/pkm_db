@@ -18,7 +18,7 @@ let sqlContent = 'INSERT INTO pokemon (\n' +
     ') VALUES\n';
 
 // Process each line
-lines.slice(1).forEach((line, index) => {
+lines.slice(0).forEach((line, index) => {
     const columns = line.split(',');
     if (columns.length < 51) return; // Skip invalid lines
 
@@ -87,3 +87,15 @@ lines.slice(1).forEach((line, index) => {
 // Write SQL file
 fs.writeFileSync('../sql/pokemon.sql', sqlContent);
 console.log('SQL file generated successfully!');
+
+
+// update pokemon
+// set img_large = (case
+// when name like 'Mega %' then concat(pokedex_number, '-mega.png')
+// else concat(pokedex_number, '.png') end
+// ),
+// img_icon  = (case
+// when name like 'Mega %' then concat(pokedex_number, '-mega.png')
+// else concat(pokedex_number, '.png') end
+// )
+// where 1 = 1;
