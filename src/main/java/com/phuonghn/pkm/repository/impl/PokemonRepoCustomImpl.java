@@ -7,6 +7,7 @@ import com.phuonghn.pkm.repository.AbilityRepo;
 import com.phuonghn.pkm.repository.PokemonRepoCustom;
 import com.phuonghn.pkm.repository.TypeRepo;
 import com.phuonghn.pkm.service.dto.PokemonDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 public class PokemonRepoCustomImpl implements PokemonRepoCustom {
     @PersistenceContext
@@ -86,30 +88,29 @@ public class PokemonRepoCustomImpl implements PokemonRepoCustom {
                     try {
                         ClassPathResource resource = new ClassPathResource(imgPokemonIcon + e.getImgIcon());
                         e.setImgIcon("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath())));
-
-                        if (e.getType1() != null) {
-                            Optional<Type> typeOptional1 = typeRepo.findByCode(e.getType1());
-                            typeOptional1.ifPresent(e::setType1Entity);
-                        }
-                        if (e.getType2() != null) {
-                            Optional<Type> typeOptional2 = typeRepo.findByCode(e.getType2());
-                            typeOptional2.ifPresent(e::setType2Entity);
-                        }
-                        if (e.getAbility1() != null) {
-                            Optional<Ability> abilityOptional1 = abilityRepo.findByName(e.getAbility1());
-                            abilityOptional1.ifPresent(e::setAbility1E);
-                        }
-                        if (e.getAbility2() != null) {
-                            Optional<Ability> abilityOptional2 = abilityRepo.findByName(e.getAbility2());
-                            abilityOptional2.ifPresent(e::setAbility2E);
-                        }
-                        if (e.getAbilityHidden() != null) {
-                            Optional<Ability> abilityOptional3 = abilityRepo.findByName(e.getAbilityHidden());
-                            abilityOptional3.ifPresent(e::setAbilityHiddenE);
-                        }
-
                     } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+                        log.error("Error reading image file: {}", e.getImgIcon(), ex);
+                    }
+
+                    if (e.getType1() != null) {
+                        Optional<Type> typeOptional1 = typeRepo.findByCode(e.getType1());
+                        typeOptional1.ifPresent(e::setType1Entity);
+                    }
+                    if (e.getType2() != null) {
+                        Optional<Type> typeOptional2 = typeRepo.findByCode(e.getType2());
+                        typeOptional2.ifPresent(e::setType2Entity);
+                    }
+                    if (e.getAbility1() != null) {
+                        Optional<Ability> abilityOptional1 = abilityRepo.findByName(e.getAbility1());
+                        abilityOptional1.ifPresent(e::setAbility1E);
+                    }
+                    if (e.getAbility2() != null) {
+                        Optional<Ability> abilityOptional2 = abilityRepo.findByName(e.getAbility2());
+                        abilityOptional2.ifPresent(e::setAbility2E);
+                    }
+                    if (e.getAbilityHidden() != null) {
+                        Optional<Ability> abilityOptional3 = abilityRepo.findByName(e.getAbilityHidden());
+                        abilityOptional3.ifPresent(e::setAbilityHiddenE);
                     }
                 })
                 .collect(Collectors.toList());

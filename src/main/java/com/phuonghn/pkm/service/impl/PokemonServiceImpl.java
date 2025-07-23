@@ -9,6 +9,7 @@ import com.phuonghn.pkm.service.PokemonService;
 import com.phuonghn.pkm.service.dto.PokemonDTO;
 import com.phuonghn.pkm.service.mapper.PokemonMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PokemonServiceImpl implements PokemonService {
@@ -55,8 +57,13 @@ public class PokemonServiceImpl implements PokemonService {
             Optional<Pokemon> pokemonOptional = pokemonRepo.findById(id);
             if (pokemonOptional.isPresent()) {
                 PokemonDTO pokemonDTO = pokemonMapper.toDto(pokemonOptional.get());
-                ClassPathResource resource = new ClassPathResource(imgPokemonLarge + pokemonDTO.getImgLarge());
-                pokemonDTO.setImgLarge("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath())));
+                try {
+                    ClassPathResource resource = new ClassPathResource(imgPokemonLarge + pokemonDTO.getImgLarge());
+                    pokemonDTO.setImgLarge("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath())));
+                } catch (Exception e) {
+                    log.error("Error reading image file: {}", e.getMessage());
+                }
+
                 if (pokemonDTO.getType1() != null) {
                     typeRepo.findByCode(pokemonDTO.getType1()).ifPresent(pokemonDTO::setType1Entity);
                 }
