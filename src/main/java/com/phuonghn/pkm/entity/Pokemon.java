@@ -168,4 +168,11 @@ public class Pokemon {
     @Basic
     @Column(name = "img_icon", nullable = true, length = 255)
     private String imgIcon;
+    @Basic
+    @Column(name = "description", nullable = true, length = 255)
+    private String description;
+    @Basic
+    @Column(name = "default_skin", nullable = true, length = 255)
+    private Long defaultSkin;
+
 }

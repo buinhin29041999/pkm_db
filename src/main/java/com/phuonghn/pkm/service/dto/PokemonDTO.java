@@ -5,6 +5,7 @@ import com.phuonghn.pkm.entity.Type;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class PokemonDTO implements Serializable {
@@ -67,4 +68,6 @@ public class PokemonDTO implements Serializable {
     private Double againstFairy;
     private String imgLarge;
     private String imgIcon;
+    private String description;
+    private List<EvolutionDTO> evolutionDTOS;
 }

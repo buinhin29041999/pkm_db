@@ -51,7 +51,7 @@ public class PokemonRepoCustomImpl implements PokemonRepoCustom {
                 "egg_type_number, egg_type_1, egg_type_2, percentage_male, egg_cycles, against_normal, against_fire, against_water, " +
                 "against_electric, against_grass, against_ice, against_fight, against_poison, against_ground, against_flying, " +
                 "against_psychic, against_bug, against_rock, against_ghost, against_dragon, against_dark, against_steel, " +
-                "against_fairy,img_icon,img_large from pokemon where 1 = 1");
+                "against_fairy,img_icon,img_large from pokemon where 1 = 1 and default_skin = 1");
         if (!DataUtils.isNullOrEmpty(pokemonDTO.getName())) {
             query.append(" and name = :name");
             map.put("name", DataUtils.makeLikeQuery(pokemonDTO.getName()));

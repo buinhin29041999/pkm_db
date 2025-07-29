@@ -1,12 +1,15 @@
 package com.phuonghn.pkm.service.impl;
 
 import com.phuonghn.pkm.common.exeption.BusinessException;
+import com.phuonghn.pkm.entity.Evolution;
 import com.phuonghn.pkm.entity.Pokemon;
 import com.phuonghn.pkm.repository.AbilityRepo;
+import com.phuonghn.pkm.repository.EvolutionRepo;
 import com.phuonghn.pkm.repository.PokemonRepo;
 import com.phuonghn.pkm.repository.TypeRepo;
 import com.phuonghn.pkm.service.PokemonService;
 import com.phuonghn.pkm.service.dto.PokemonDTO;
+import com.phuonghn.pkm.service.mapper.EvolutionMapper;
 import com.phuonghn.pkm.service.mapper.PokemonMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +39,8 @@ public class PokemonServiceImpl implements PokemonService {
     private String imgPokemonIcon;
     private final TypeRepo typeRepo;
     private final AbilityRepo abilityRepo;
+    private final EvolutionRepo evolutionRepo;
+    private final EvolutionMapper evolutionMapper;
 
     @Override
     public List<PokemonDTO> findAll() {
@@ -80,6 +85,11 @@ public class PokemonServiceImpl implements PokemonService {
                 if (pokemonDTO.getAbilityHidden() != null) {
                     abilityRepo.findByName(pokemonDTO.getAbilityHidden()).ifPresent(pokemonDTO::setAbilityHiddenE);
                 }
+
+                // Set evolution details
+                List<Evolution> evolutions = evolutionRepo.findAllEvolOfPokemon(id);
+                pokemonDTO.setEvolutionDTOS(evolutionMapper.toDto(evolutions));
+
                 return pokemonDTO;
             }
             return null;
