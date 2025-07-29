@@ -11,5 +11,9 @@ public class EvolutionDTO {
     private Long id;
     private Long fromId;
     private Long toId;
+    private String name;
+    private EvolutionConditionDTO condition;
+    private String conditionStr;
+    private PokemonDTO pokemonDTO;
 }
 

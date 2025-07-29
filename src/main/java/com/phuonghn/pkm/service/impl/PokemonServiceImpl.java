@@ -3,13 +3,10 @@ package com.phuonghn.pkm.service.impl;
 import com.phuonghn.pkm.common.exeption.BusinessException;
 import com.phuonghn.pkm.entity.Evolution;
 import com.phuonghn.pkm.entity.Pokemon;
-import com.phuonghn.pkm.repository.AbilityRepo;
-import com.phuonghn.pkm.repository.EvolutionRepo;
-import com.phuonghn.pkm.repository.PokemonRepo;
-import com.phuonghn.pkm.repository.TypeRepo;
+import com.phuonghn.pkm.repository.*;
 import com.phuonghn.pkm.service.PokemonService;
 import com.phuonghn.pkm.service.dto.PokemonDTO;
-import com.phuonghn.pkm.service.mapper.EvolutionMapper;
+import com.phuonghn.pkm.service.mapper.EvolutionConditionMapper;
 import com.phuonghn.pkm.service.mapper.PokemonMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,6 +28,7 @@ import java.util.stream.Collectors;
 public class PokemonServiceImpl implements PokemonService {
     private final PokemonRepo pokemonRepo;
     private final PokemonMapper pokemonMapper;
+    private final EvolutionConditionRepo evolutionConditionRepo;
     @Value("${image.pokemon-large}")
     private String imgPokemonLarge;
     @Value("${image.pokemon-icon}")
@@ -40,7 +36,7 @@ public class PokemonServiceImpl implements PokemonService {
     private final TypeRepo typeRepo;
     private final AbilityRepo abilityRepo;
     private final EvolutionRepo evolutionRepo;
-    private final EvolutionMapper evolutionMapper;
+    private final EvolutionConditionMapper evolutionConditionMapper;
 
     @Override
     public List<PokemonDTO> findAll() {
@@ -87,15 +83,92 @@ public class PokemonServiceImpl implements PokemonService {
                 }
 
                 // Set evolution details
-                List<Evolution> evolutions = evolutionRepo.findAllEvolOfPokemon(id);
-                pokemonDTO.setEvolutionDTOS(evolutionMapper.toDto(evolutions));
+                List<Evolution> evolutions = evolutionRepo.findAll();
+                List<Evolution> evolutionsFiltered = evolutions.stream()
+                        .filter(e -> Objects.nonNull(e.getFromId()) && Objects.nonNull(e.getToId()))
+                        .collect(Collectors.toList());
+
+                List<PokemonDTO> evolutionChains = pokemonMapper.toDto(getEvolutionChain(id, evolutionsFiltered));
+                PokemonDTO prev = null;
+                for (PokemonDTO chain : evolutionChains) {
+                    try {
+                        ClassPathResource resource = new ClassPathResource(imgPokemonLarge + chain.getImgLarge());
+                        chain.setImgLarge("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath())));
+                    } catch (Exception e) {
+                        log.error("Error reading image file: {}", e.getMessage());
+                    }
+                    if (prev == null) {
+                        prev = chain;
+                        continue;
+                    }
+
+                    Long prevId = prev.getId();
+                    Long currentId = chain.getId();
+                    Evolution evolution = evolutionsFiltered.stream()
+                            .filter(e -> e.getFromId().equals(prevId) && e.getToId().equals(currentId))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (evolution != null) {
+                        chain.setConditionDTOS(evolutionConditionMapper.toDto(evolutionConditionRepo.findAllByEvolutionId(evolution.getId())));
+                    }
+                    prev = chain;
+
+                }
+                pokemonDTO.setEvolutionChains(evolutionChains);
 
                 return pokemonDTO;
             }
             return null;
         } catch (Exception e) {
-            throw new BusinessException("Error");
+            e.getStackTrace();
+            throw new BusinessException("Error", e);
         }
 
+    }
+
+    public List<Pokemon> getEvolutionChain(long inputId, List<Evolution> evolutionsFiltered) {
+
+        // 1. Đồ thị tiến hóa thuận (from -> to) và nghịch (to -> from)
+        Map<Long, Long> nextMap = new HashMap<>();
+        Map<Long, Long> prevMap = new HashMap<>();
+
+        for (Evolution pair : evolutionsFiltered) {
+            Long from = pair.getFromId();
+            Long to = pair.getToId();
+            nextMap.put(from, to);
+            prevMap.put(to, from);
+        }
+
+        // 2. Tìm gốc chuỗi tiến hóa (đi ngược về đầu)
+        Long startId = inputId;
+        while (prevMap.containsKey(startId)) {
+            startId = prevMap.get(startId);
+        }
+
+        // 3. Duyệt tiến theo thứ tự tiến hóa
+        List<Long> chain = new ArrayList<>();
+        Long currentId = startId;
+        chain.add(currentId);
+        while (nextMap.containsKey(currentId)) {
+            currentId = nextMap.get(currentId);
+            chain.add(currentId);
+        }
+
+        // 4. Lấy thông tin Pokemon theo ID đã có
+        List<Pokemon> pokemons = pokemonRepo.findAllById(chain);
+
+        // 5. Sắp xếp theo đúng thứ tự chain
+        Map<Long, Pokemon> idToPokemon = pokemons.stream()
+                .collect(Collectors.toMap(Pokemon::getId, p -> p));
+
+        List<Pokemon> ordered = new ArrayList<>();
+        for (Long id : chain) {
+            if (idToPokemon.containsKey(id)) {
+                ordered.add(idToPokemon.get(id));
+            }
+        }
+
+        return ordered;
     }
 }
