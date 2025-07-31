@@ -24,4 +24,7 @@ public class Item {
     @Basic
     @Column(name = "description")
     private String description;
+    @Basic
+    @Column(name = "image")
+    private String image;
 }

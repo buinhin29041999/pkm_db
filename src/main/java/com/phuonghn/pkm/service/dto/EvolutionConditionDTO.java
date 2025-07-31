@@ -13,5 +13,6 @@ public class EvolutionConditionDTO {
     private String value;
     private String itemCode;
     private Long evolutionId;
+    private ItemDTO item;
 }
 

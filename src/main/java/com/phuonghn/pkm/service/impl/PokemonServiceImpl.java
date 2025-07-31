@@ -5,8 +5,12 @@ import com.phuonghn.pkm.entity.Evolution;
 import com.phuonghn.pkm.entity.Pokemon;
 import com.phuonghn.pkm.repository.*;
 import com.phuonghn.pkm.service.PokemonService;
+import com.phuonghn.pkm.service.dto.EvolutionChainDTO;
+import com.phuonghn.pkm.service.dto.EvolutionConditionDTO;
+import com.phuonghn.pkm.service.dto.ItemDTO;
 import com.phuonghn.pkm.service.dto.PokemonDTO;
 import com.phuonghn.pkm.service.mapper.EvolutionConditionMapper;
+import com.phuonghn.pkm.service.mapper.ItemMapper;
 import com.phuonghn.pkm.service.mapper.PokemonMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +33,14 @@ public class PokemonServiceImpl implements PokemonService {
     private final PokemonRepo pokemonRepo;
     private final PokemonMapper pokemonMapper;
     private final EvolutionConditionRepo evolutionConditionRepo;
+    private final ItemRepo itemRepo;
+    private final ItemMapper itemMapper;
     @Value("${image.pokemon-large}")
     private String imgPokemonLarge;
     @Value("${image.pokemon-icon}")
     private String imgPokemonIcon;
+    @Value("${image.items}")
+    private String imgItems;
     private final TypeRepo typeRepo;
     private final AbilityRepo abilityRepo;
     private final EvolutionRepo evolutionRepo;
@@ -53,6 +61,7 @@ public class PokemonServiceImpl implements PokemonService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PokemonDTO detail(Long id) {
         try {
             Optional<Pokemon> pokemonOptional = pokemonRepo.findById(id);
@@ -88,34 +97,39 @@ public class PokemonServiceImpl implements PokemonService {
                         .filter(e -> Objects.nonNull(e.getFromId()) && Objects.nonNull(e.getToId()))
                         .collect(Collectors.toList());
 
-                List<PokemonDTO> evolutionChains = pokemonMapper.toDto(getEvolutionChain(id, evolutionsFiltered));
-                PokemonDTO prev = null;
-                for (PokemonDTO chain : evolutionChains) {
-                    try {
-                        ClassPathResource resource = new ClassPathResource(imgPokemonLarge + chain.getImgLarge());
-                        chain.setImgLarge("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath())));
-                    } catch (Exception e) {
-                        log.error("Error reading image file: {}", e.getMessage());
-                    }
-                    if (prev == null) {
-                        prev = chain;
-                        continue;
-                    }
+                List<EvolutionChainDTO> chainDTOS = getEvolutionChain(id, evolutionsFiltered);
 
-                    Long prevId = prev.getId();
-                    Long currentId = chain.getId();
-                    Evolution evolution = evolutionsFiltered.stream()
-                            .filter(e -> e.getFromId().equals(prevId) && e.getToId().equals(currentId))
-                            .findFirst()
-                            .orElse(null);
+                List<ItemDTO> items = itemMapper.toDto(itemRepo.findAll());
+                Map<String, ItemDTO> itemMap = items.stream()
+                        .collect(Collectors.toMap(ItemDTO::getCode, item -> item));
 
-                    if (evolution != null) {
-                        chain.setConditionDTOS(evolutionConditionMapper.toDto(evolutionConditionRepo.findAllByEvolutionId(evolution.getId())));
+                for (EvolutionChainDTO chain : chainDTOS) {
+                    PokemonDTO dto = chain.getPokemon();
+                    dto.setImgLarge(loadImageAsBase64(imgPokemonLarge + dto.getImgLarge()));
+
+                    // Set điều kiện tiến hóa
+                    if (chain.getParentId() != null) {
+                        Evolution evolution = evolutionsFiltered.stream()
+                                .filter(e -> e.getFromId().equals(chain.getParentId()) && e.getToId().equals(dto.getId()))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (evolution != null) {
+                            List<EvolutionConditionDTO> conditions = evolutionConditionMapper.toDto(evolutionConditionRepo.findAllByEvolutionId(evolution.getId()));
+                            for (EvolutionConditionDTO condition : conditions) {
+                                if (condition.getItemCode() != null) {
+                                    ItemDTO item = itemMap.get(condition.getItemCode());
+                                    item.setImageUrl(loadImageAsBase64(imgItems + item.getImage()));
+                                    if (item != null) {
+                                        condition.setItem(item);
+                                    }
+                                }
+                            }
+                            chain.setConditions(conditions);
+                        }
                     }
-                    prev = chain;
-
                 }
-                pokemonDTO.setEvolutionChains(evolutionChains);
+                pokemonDTO.setEvolutionChains(chainDTOS);
 
                 return pokemonDTO;
             }
@@ -124,51 +138,68 @@ public class PokemonServiceImpl implements PokemonService {
             e.getStackTrace();
             throw new BusinessException("Error", e);
         }
-
     }
 
-    public List<Pokemon> getEvolutionChain(long inputId, List<Evolution> evolutionsFiltered) {
+    private String loadImageAsBase64(String path) {
+        try {
+            ClassPathResource resource = new ClassPathResource(path);
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath()));
+        } catch (Exception e) {
+            log.warn("Image not found: {}", path);
+            return null;
+        }
+    }
 
-        // 1. Đồ thị tiến hóa thuận (from -> to) và nghịch (to -> from)
-        Map<Long, Long> nextMap = new HashMap<>();
-        Map<Long, Long> prevMap = new HashMap<>();
+    public List<EvolutionChainDTO> getEvolutionChain(long inputId, List<Evolution> evolutionsFiltered) {
+
+        // Đồ thị tiến hóa đa nhánh
+        Map<Long, List<Long>> nextMap = new HashMap<>();
+        Map<Long, List<Long>> prevMap = new HashMap<>();
 
         for (Evolution pair : evolutionsFiltered) {
             Long from = pair.getFromId();
             Long to = pair.getToId();
-            nextMap.put(from, to);
-            prevMap.put(to, from);
+
+            nextMap.computeIfAbsent(from, k -> new ArrayList<>()).add(to);
+            prevMap.computeIfAbsent(to, k -> new ArrayList<>()).add(from);
         }
 
-        // 2. Tìm gốc chuỗi tiến hóa (đi ngược về đầu)
+        // Tìm gốc chuỗi tiến hóa
         Long startId = inputId;
         while (prevMap.containsKey(startId)) {
-            startId = prevMap.get(startId);
+            startId = prevMap.get(startId).get(0);
         }
 
-        // 3. Duyệt tiến theo thứ tự tiến hóa
-        List<Long> chain = new ArrayList<>();
-        Long currentId = startId;
-        chain.add(currentId);
-        while (nextMap.containsKey(currentId)) {
-            currentId = nextMap.get(currentId);
-            chain.add(currentId);
-        }
+        // Duyệt DFS và lưu parent-child
+        Map<Long, Long> childToParent = new LinkedHashMap<>();
+        dfsWithParent(startId, null, nextMap, childToParent);
 
-        // 4. Lấy thông tin Pokemon theo ID đã có
-        List<Pokemon> pokemons = pokemonRepo.findAllById(chain);
+        // Lấy toàn bộ ID cần thiết
+        List<Long> allIds = new ArrayList<>(childToParent.keySet());
+        List<Pokemon> pokemons = pokemonRepo.findAllById(allIds);
 
-        // 5. Sắp xếp theo đúng thứ tự chain
+        // Map id -> Pokemon
         Map<Long, Pokemon> idToPokemon = pokemons.stream()
                 .collect(Collectors.toMap(Pokemon::getId, p -> p));
 
-        List<Pokemon> ordered = new ArrayList<>();
-        for (Long id : chain) {
+        // Tạo danh sách kết quả
+        List<EvolutionChainDTO> result = new ArrayList<>();
+        for (Map.Entry<Long, Long> entry : childToParent.entrySet()) {
+            Long id = entry.getKey();
+            Long parentId = entry.getValue();
             if (idToPokemon.containsKey(id)) {
-                ordered.add(idToPokemon.get(id));
+                result.add(new EvolutionChainDTO(parentId, pokemonMapper.toDto(idToPokemon.get(id))));
             }
         }
 
-        return ordered;
+        return result;
+    }
+
+    private void dfsWithParent(Long current, Long parentId, Map<Long, List<Long>> graph, Map<Long, Long> childToParent) {
+        if (childToParent.containsKey(current)) return;
+        childToParent.put(current, parentId);
+        for (Long next : graph.getOrDefault(current, Collections.emptyList())) {
+            dfsWithParent(next, current, graph, childToParent);
+        }
     }
 }

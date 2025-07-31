@@ -69,6 +69,5 @@ public class PokemonDTO implements Serializable {
     private String imgLarge;
     private String imgIcon;
     private String description;
-    private List<PokemonDTO> evolutionChains;
-    private List<EvolutionConditionDTO> conditionDTOS;
+    private List<EvolutionChainDTO> evolutionChains;
 }

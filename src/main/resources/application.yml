@@ -43,6 +43,7 @@ spring:
 image:
   pokemon-large: source/image/pokemon_large/
   pokemon-icon: source/image/pokemon_icon/
+  items: source/image/items/
 kafka:
   server: localhost
   port: 9092
