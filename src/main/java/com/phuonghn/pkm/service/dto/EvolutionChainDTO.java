@@ -12,6 +12,7 @@ import java.util.List;
 public class EvolutionChainDTO {
     private Long parentId;
     private PokemonDTO pokemon;
+    private String specialForm;
     private List<EvolutionConditionDTO> conditions;
 
     public EvolutionChainDTO(Long parentId, PokemonDTO pokemon) {

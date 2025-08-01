@@ -18,4 +18,7 @@ public class Evolution {
     @Basic
     @Column(name = "to_id")
     private Long toId;
+    @Basic
+    @Column(name = "type")
+    private String type;
 }

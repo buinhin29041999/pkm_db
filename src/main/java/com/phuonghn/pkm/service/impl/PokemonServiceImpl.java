@@ -1,6 +1,8 @@
 package com.phuonghn.pkm.service.impl;
 
+import com.phuonghn.pkm.common.Constants;
 import com.phuonghn.pkm.common.exeption.BusinessException;
+import com.phuonghn.pkm.common.utils.DataUtils;
 import com.phuonghn.pkm.entity.Evolution;
 import com.phuonghn.pkm.entity.Pokemon;
 import com.phuonghn.pkm.repository.*;
@@ -93,43 +95,19 @@ public class PokemonServiceImpl implements PokemonService {
 
                 // Set evolution details
                 List<Evolution> evolutions = evolutionRepo.findAll();
-                List<Evolution> evolutionsFiltered = evolutions.stream()
-                        .filter(e -> Objects.nonNull(e.getFromId()) && Objects.nonNull(e.getToId()))
-                        .collect(Collectors.toList());
 
-                List<EvolutionChainDTO> chainDTOS = getEvolutionChain(id, evolutionsFiltered);
+                List<EvolutionConditionDTO> evolutionConditions = evolutionConditionMapper.toDto(evolutionConditionRepo.findAll());
+                Map<Long, List<EvolutionConditionDTO>> mapConditions = evolutionConditions.stream()
+                        .collect(Collectors.groupingBy(EvolutionConditionDTO::getEvolutionId));
 
                 List<ItemDTO> items = itemMapper.toDto(itemRepo.findAll());
-                Map<String, ItemDTO> itemMap = items.stream()
+                Map<String, ItemDTO> mapItem = items.stream()
                         .collect(Collectors.toMap(ItemDTO::getCode, item -> item));
 
-                for (EvolutionChainDTO chain : chainDTOS) {
-                    PokemonDTO dto = chain.getPokemon();
-                    dto.setImgLarge(loadImageAsBase64(imgPokemonLarge + dto.getImgLarge()));
+                pokemonDTO.setEvolutionChains(getEvolutionChain(id, evolutions, mapItem));
 
-                    // Set điều kiện tiến hóa
-                    if (chain.getParentId() != null) {
-                        Evolution evolution = evolutionsFiltered.stream()
-                                .filter(e -> e.getFromId().equals(chain.getParentId()) && e.getToId().equals(dto.getId()))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (evolution != null) {
-                            List<EvolutionConditionDTO> conditions = evolutionConditionMapper.toDto(evolutionConditionRepo.findAllByEvolutionId(evolution.getId()));
-                            for (EvolutionConditionDTO condition : conditions) {
-                                if (condition.getItemCode() != null) {
-                                    ItemDTO item = itemMap.get(condition.getItemCode());
-                                    item.setImageUrl(loadImageAsBase64(imgItems + item.getImage()));
-                                    if (item != null) {
-                                        condition.setItem(item);
-                                    }
-                                }
-                            }
-                            chain.setConditions(conditions);
-                        }
-                    }
-                }
-                pokemonDTO.setEvolutionChains(chainDTOS);
+                // set special evolution
+                pokemonDTO.setSpecialForm(getSpecialForm(id, evolutions, mapConditions, mapItem));
 
                 return pokemonDTO;
             }
@@ -137,6 +115,94 @@ public class PokemonServiceImpl implements PokemonService {
         } catch (Exception e) {
             e.getStackTrace();
             throw new BusinessException("Error", e);
+        }
+    }
+
+    private List<EvolutionChainDTO> getSpecialForm(Long id, List<Evolution> evolutions, Map<Long, List<EvolutionConditionDTO>> mapConditions, Map<String, ItemDTO> mapItem) {
+
+        try {
+            List<EvolutionChainDTO> chainDTOS = new ArrayList<>();
+            List<Evolution> evolutionsFiltered = evolutions.stream()
+                    .filter(e -> Objects.nonNull(e.getFromId()) && Objects.nonNull(e.getToId()))
+                    .filter(e -> !Constants.EVOLUTION_TYPE.NORMAL.equals(e.getType()))
+                    .filter(e -> id.equals(e.getFromId()))
+                    .collect(Collectors.toList());
+
+            if (!DataUtils.isNullOrEmpty(evolutionsFiltered)) {
+                List<PokemonDTO> pokemonDTOS = pokemonMapper.toDto(pokemonRepo.findAllById(evolutionsFiltered.stream().map(Evolution::getToId)
+                        .collect(Collectors.toList())));
+                Map<Long, PokemonDTO> pokemonMap = pokemonDTOS.stream().collect(Collectors.toMap(PokemonDTO::getId, p -> p));
+                for (Evolution evolution : evolutionsFiltered) {
+                    EvolutionChainDTO dto = new EvolutionChainDTO();
+                    dto.setSpecialForm(evolution.getType());
+                    dto.setPokemon(pokemonMap.get(evolution.getToId()));
+
+                    List<EvolutionConditionDTO> conditions = mapConditions.get(evolution.getId());
+                    if (!DataUtils.isNullOrEmpty(conditions)) {
+                        for (EvolutionConditionDTO condition : conditions) {
+                            if (condition.getItemCode() != null) {
+                                ItemDTO item = mapItem.get(condition.getItemCode());
+                                item.setImageUrl(loadImageAsBase64(imgItems + item.getImage()));
+                                if (item != null) {
+                                    condition.setItem(item);
+                                }
+                            }
+                        }
+                        dto.setConditions(conditions);
+                    }
+                    chainDTOS.add(dto);
+                }
+            }
+
+            return chainDTOS;
+        } catch (Exception e) {
+            log.error("Error getting special evolution chain for id {}: {}", id, e.getMessage());
+            return Collections.emptyList();
+        }
+
+    }
+
+    private List<EvolutionChainDTO> getEvolutionChain(Long id, List<Evolution> evolutions, Map<String, ItemDTO> mapItem) {
+
+        try {
+
+            List<Evolution> evolutionsFiltered = evolutions.stream()
+                    .filter(e -> Objects.nonNull(e.getFromId()) && Objects.nonNull(e.getToId()))
+                    .filter(e -> Constants.EVOLUTION_TYPE.NORMAL.equals(e.getType()))
+                    .collect(Collectors.toList());
+
+            List<EvolutionChainDTO> chainDTOS = getEvolutionChain(id, evolutionsFiltered);
+
+            for (EvolutionChainDTO chain : chainDTOS) {
+                PokemonDTO dto = chain.getPokemon();
+                dto.setImgLarge(loadImageAsBase64(imgPokemonLarge + dto.getImgLarge()));
+
+                // Set điều kiện tiến hóa
+                if (chain.getParentId() != null) {
+                    Evolution evolution = evolutionsFiltered.stream()
+                            .filter(e -> e.getFromId().equals(chain.getParentId()) && e.getToId().equals(dto.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (evolution != null) {
+                        List<EvolutionConditionDTO> conditions = evolutionConditionMapper.toDto(evolutionConditionRepo.findAllByEvolutionId(evolution.getId()));
+                        for (EvolutionConditionDTO condition : conditions) {
+                            if (condition.getItemCode() != null) {
+                                ItemDTO item = mapItem.get(condition.getItemCode());
+                                item.setImageUrl(loadImageAsBase64(imgItems + item.getImage()));
+                                if (item != null) {
+                                    condition.setItem(item);
+                                }
+                            }
+                        }
+                        chain.setConditions(conditions);
+                    }
+                }
+            }
+            return chainDTOS;
+        } catch (Exception e) {
+            log.error("Error getting evolution chain for id {}: {}", id, e.getMessage());
+            return Collections.emptyList();
         }
     }
 

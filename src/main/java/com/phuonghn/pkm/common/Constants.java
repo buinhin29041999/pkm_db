@@ -9,4 +9,9 @@ public class Constants {
     public static final class KAFKA_GROUP {
         public static final String PKM_NEWS = "news-group";
     }
+
+    public static final class EVOLUTION_TYPE {
+        public static final String NORMAL = "NORMAL";
+        public static final String MEGA = "MEGA";
+    }
 }
