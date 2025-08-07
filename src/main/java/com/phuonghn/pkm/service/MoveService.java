@@ -11,4 +11,6 @@ public interface MoveService {
     List<MoveDTO> findAll();
 
     Page<MoveDTO> search(MoveDTO dto, Pageable pageable);
+
+    MoveDTO detail(Long id);
 }

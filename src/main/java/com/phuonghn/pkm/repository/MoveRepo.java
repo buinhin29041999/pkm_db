@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface MoveRepo extends JpaRepository<Move, Long> {
 
-    @Query("SELECT distinct new com.phuonghn.pkm.service.dto.MoveDTO(" +
+    @Query("SELECT new com.phuonghn.pkm.service.dto.MoveDTO(" +
             " m.id, m.name, m.accuracy, m.pp, m.power," +
             " m.priority, m.type, t.name, m.generation, gpg.value," +
             " m.shortDescription, m.damageClass, gpdc.value) " +

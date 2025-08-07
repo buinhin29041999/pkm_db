@@ -1,5 +1,6 @@
 package com.phuonghn.pkm.service.impl;
 
+import com.phuonghn.pkm.entity.Move;
 import com.phuonghn.pkm.repository.MoveRepo;
 import com.phuonghn.pkm.service.MoveService;
 import com.phuonghn.pkm.service.dto.MoveDTO;
@@ -33,5 +34,12 @@ public class MoveServiceImpl implements MoveService {
     @Override
     public Page<MoveDTO> search(MoveDTO dto, Pageable pageable) {
         return moveRepo.search(dto.getName(), dto.getType(), dto.getDamageClass(), dto.getGeneration(), pageable);
+    }
+
+    @Override
+    public MoveDTO detail(Long id) {
+        Move move = moveRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Move not found with id: " + id));
+        return moveMapper.toDto(move);
     }
 }

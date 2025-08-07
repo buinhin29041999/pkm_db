@@ -14,4 +14,8 @@ public class Constants {
         public static final String NORMAL = "NORMAL";
         public static final String MEGA = "MEGA";
     }
+
+    public static final class GLOBAL_PARAM_TYPE {
+        public static final String GENERATION = "GENERATION";
+    }
 }

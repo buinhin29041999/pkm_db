@@ -24,4 +24,9 @@ public class MoveController {
         return new ResponseEntity<>(moveService.search(dto, pageable), HttpStatus.OK);
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<?> detail(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(moveService.detail(id), HttpStatus.OK);
+    }
+
 }
