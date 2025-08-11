@@ -37,20 +37,20 @@ public class PokemonServiceImpl implements PokemonService {
     private final EvolutionConditionRepo evolutionConditionRepo;
     private final ItemRepo itemRepo;
     private final ItemMapper itemMapper;
+    private final TypeRepo typeRepo;
+    private final AbilityRepo abilityRepo;
+    private final EvolutionRepo evolutionRepo;
+    private final EvolutionConditionMapper evolutionConditionMapper;
     @Value("${image.pokemon-large}")
     private String imgPokemonLarge;
     @Value("${image.pokemon-icon}")
     private String imgPokemonIcon;
     @Value("${image.items}")
     private String imgItems;
-    private final TypeRepo typeRepo;
-    private final AbilityRepo abilityRepo;
-    private final EvolutionRepo evolutionRepo;
-    private final EvolutionConditionMapper evolutionConditionMapper;
 
     @Override
-    public List<PokemonDTO> findAll() {
-        return pokemonMapper.toDto(pokemonRepo.findAll()
+    public List<PokemonDTO> findAll(String generationCode, String type) {
+        return pokemonMapper.toDto(pokemonRepo.findAllByGen(generationCode, type)
                 .stream()
                 .peek(e -> e.setImgLarge(imgPokemonIcon + File.separator + e.getImgIcon()))
                 .collect(Collectors.toList()));

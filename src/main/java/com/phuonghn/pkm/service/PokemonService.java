@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface PokemonService {
 
-    List<PokemonDTO> findAll();
+    List<PokemonDTO> findAll(String generationCode, String type);
 
     Page<PokemonDTO> search(PokemonDTO pokemonDTO, Pageable pageable);
 

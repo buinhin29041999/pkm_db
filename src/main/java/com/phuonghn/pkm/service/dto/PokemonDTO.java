@@ -11,11 +11,11 @@ import java.util.List;
 public class PokemonDTO implements Serializable {
 
     private Long id;
-    private Integer pokedexNumber;
+    private String pokedexNumber;
     private String name;
     private String germanName;
     private String japaneseName;
-    private Integer generation;
+    private String generation;
     private String status;
     private String species;
     private Integer typeNumber;
@@ -71,4 +71,7 @@ public class PokemonDTO implements Serializable {
     private String description;
     private List<EvolutionChainDTO> evolutionChains;
     private List<EvolutionChainDTO> specialForm;
+
+    // Additional fields for search
+    private String type;
 }

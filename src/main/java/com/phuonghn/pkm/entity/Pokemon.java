@@ -14,7 +14,7 @@ public class Pokemon {
     private Long id;
     @Basic
     @Column(name = "pokedex_number", nullable = true)
-    private Integer pokedexNumber;
+    private String pokedexNumber;
     @Basic
     @Column(name = "name", nullable = true, length = 255)
     private String name;
@@ -26,7 +26,7 @@ public class Pokemon {
     private String japaneseName;
     @Basic
     @Column(name = "generation", nullable = true)
-    private Integer generation;
+    private String generation;
     @Basic
     @Column(name = "status", nullable = true, length = 255)
     private String status;

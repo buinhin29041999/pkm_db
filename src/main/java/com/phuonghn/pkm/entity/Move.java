@@ -39,4 +39,10 @@ public class Move {
     @Basic
     @Column(name = "damage_class")
     private String damageClass;
+    @Basic
+    @Column(name = "make_contact")
+    private Long makeContact;
+    @Basic
+    @Column(name = "z_move_effect")
+    private String zMoveEffect;
 }

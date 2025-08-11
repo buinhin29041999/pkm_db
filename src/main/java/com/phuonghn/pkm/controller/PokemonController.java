@@ -19,8 +19,9 @@ public class PokemonController {
     private final MessageProducer messageProducer;
 
     @GetMapping
-    public ResponseEntity<?> findAll() {
-        return new ResponseEntity<>(pokemonService.findAll(), HttpStatus.OK);
+    public ResponseEntity<?> findAll(@RequestParam(value = "generationCode", required = false) String generationCode,
+                                     @RequestParam(value = "type", required = false) String type) {
+        return new ResponseEntity<>(pokemonService.findAll(generationCode, type), HttpStatus.OK);
     }
 
     @GetMapping("{id}")

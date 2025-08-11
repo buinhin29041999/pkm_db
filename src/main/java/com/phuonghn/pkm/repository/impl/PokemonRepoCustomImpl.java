@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @Repository
 public class PokemonRepoCustomImpl implements PokemonRepoCustom {
+    private final TypeRepo typeRepo;
+    private final AbilityRepo abilityRepo;
     @PersistenceContext
     EntityManager entityManager;
     @Value("${image.pokemon-icon}")
     private String imgPokemonIcon;
-    private final TypeRepo typeRepo;
-    private final AbilityRepo abilityRepo;
 
     public PokemonRepoCustomImpl(TypeRepo typeRepo, AbilityRepo abilityRepo) {
         this.typeRepo = typeRepo;
@@ -56,9 +56,17 @@ public class PokemonRepoCustomImpl implements PokemonRepoCustom {
             query.append(" and name = :name");
             map.put("name", DataUtils.makeLikeQuery(pokemonDTO.getName()));
         }
-        if (pokemonDTO.getPokedexNumber() != null) {
+        if (!DataUtils.isNullOrEmpty(pokemonDTO.getPokedexNumber())) {
             query.append(" and pokedex_number = :pokedexNumber");
             map.put("pokedexNumber", pokemonDTO.getPokedexNumber());
+        }
+        if (!DataUtils.isNullOrEmpty(pokemonDTO.getGeneration())) {
+            query.append(" and generation = :generation");
+            map.put("generation", pokemonDTO.getGeneration());
+        }
+        if (!DataUtils.isNullOrEmpty(pokemonDTO.getType())) {
+            query.append(" and (type_1 = :type or type_2 = :type)");
+            map.put("type", pokemonDTO.getType());
         }
 
         query.append(" order by pokedex_number");
