@@ -42,7 +42,7 @@ spring:
 
 image:
   pokemon-large: source/image/pokemon_large/
-  pokemon-icon: source/image/pokemon_icon/
+  pokemon-icon: source/image/pokemon_icon_r/
   items: source/image/items/
 kafka:
   server: localhost
