@@ -23,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,10 +49,7 @@ public class PokemonServiceImpl implements PokemonService {
 
     @Override
     public List<PokemonDTO> findAll(String generationCode, String type) {
-        return pokemonMapper.toDto(pokemonRepo.findAllByGen(generationCode, type)
-                .stream()
-                .peek(e -> e.setImgLarge(imgPokemonIcon + File.separator + e.getImgIcon()))
-                .collect(Collectors.toList()));
+        return pokemonRepo.findAllByGen(generationCode, type);
     }
 
     @Transactional
@@ -175,7 +171,7 @@ public class PokemonServiceImpl implements PokemonService {
 
             for (EvolutionChainDTO chain : chainDTOS) {
                 PokemonDTO dto = chain.getPokemon();
-                dto.setImgLarge(loadImageAsBase64(imgPokemonLarge + dto.getImgLarge()));
+                dto.setImgLarge(loadImageAsBase64(imgPokemonIcon + dto.getImgLarge()));
 
                 // Set điều kiện tiến hóa
                 if (chain.getParentId() != null) {

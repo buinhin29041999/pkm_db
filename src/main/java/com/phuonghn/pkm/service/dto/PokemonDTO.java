@@ -2,12 +2,16 @@ package com.phuonghn.pkm.service.dto;
 
 import com.phuonghn.pkm.entity.Ability;
 import com.phuonghn.pkm.entity.Type;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PokemonDTO implements Serializable {
 
     private Long id;
@@ -54,7 +58,7 @@ public class PokemonDTO implements Serializable {
     private Double againstElectric;
     private Double againstGrass;
     private Double againstIce;
-    private Double againstFight;
+    private Double againstFighting;
     private Double againstPoison;
     private Double againstGround;
     private Double againstFlying;
@@ -74,4 +78,10 @@ public class PokemonDTO implements Serializable {
 
     // Additional fields for search
     private String type;
+
+    public PokemonDTO(Long id, String pokedexNumber, String name) {
+        this.id = id;
+        this.pokedexNumber = pokedexNumber;
+        this.name = name;
+    }
 }

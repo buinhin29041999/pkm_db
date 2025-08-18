@@ -127,8 +127,8 @@ public class Pokemon {
     @Column(name = "against_ice", nullable = true, precision = 0)
     private Double againstIce;
     @Basic
-    @Column(name = "against_fight", nullable = true, precision = 0)
-    private Double againstFight;
+    @Column(name = "against_fighting", nullable = true, precision = 0)
+    private Double againstFighting;
     @Basic
     @Column(name = "against_poison", nullable = true, precision = 0)
     private Double againstPoison;
