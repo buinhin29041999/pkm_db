@@ -18,8 +18,8 @@ public class Ability {
     @Column(name = "description", nullable = true, length = 500)
     private String description;
     @Basic
-    @Column(name = "desc_in_depth", nullable = true, length = 500)
-    private String descInDepth;
+    @Column(name = "description_vn", nullable = true, length = 500)
+    private String descriptionVn;
     @Basic
     @Column(name = "generation", nullable = true, length = 500)
     private Long generation;

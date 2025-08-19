@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PokemonDTO implements Serializable {
 
+    List<PokemonMoveDTO> pokemonMoves;
     private Long id;
     private String pokedexNumber;
     private String name;
@@ -75,7 +76,6 @@ public class PokemonDTO implements Serializable {
     private String description;
     private List<EvolutionChainDTO> evolutionChains;
     private List<EvolutionChainDTO> specialForm;
-
     // Additional fields for search
     private String type;
 

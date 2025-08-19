@@ -3,17 +3,14 @@ package com.phuonghn.pkm.service.impl;
 import com.phuonghn.pkm.common.Constants;
 import com.phuonghn.pkm.common.exeption.BusinessException;
 import com.phuonghn.pkm.common.utils.DataUtils;
+import com.phuonghn.pkm.entity.Ability;
 import com.phuonghn.pkm.entity.Evolution;
 import com.phuonghn.pkm.entity.Pokemon;
+import com.phuonghn.pkm.entity.Type;
 import com.phuonghn.pkm.repository.*;
 import com.phuonghn.pkm.service.PokemonService;
-import com.phuonghn.pkm.service.dto.EvolutionChainDTO;
-import com.phuonghn.pkm.service.dto.EvolutionConditionDTO;
-import com.phuonghn.pkm.service.dto.ItemDTO;
-import com.phuonghn.pkm.service.dto.PokemonDTO;
-import com.phuonghn.pkm.service.mapper.EvolutionConditionMapper;
-import com.phuonghn.pkm.service.mapper.ItemMapper;
-import com.phuonghn.pkm.service.mapper.PokemonMapper;
+import com.phuonghn.pkm.service.dto.*;
+import com.phuonghn.pkm.service.mapper.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +37,10 @@ public class PokemonServiceImpl implements PokemonService {
     private final AbilityRepo abilityRepo;
     private final EvolutionRepo evolutionRepo;
     private final EvolutionConditionMapper evolutionConditionMapper;
+    private final PokemonMoveMapper pokemonMoveMapper;
+    private final PokemonMoveRepo pokemonMoveRepo;
+    private final MoveRepo moveRepo;
+    private final MoveMapper moveMapper;
     @Value("${image.pokemon-large}")
     private String imgPokemonLarge;
     @Value("${image.pokemon-icon}")
@@ -63,6 +64,10 @@ public class PokemonServiceImpl implements PokemonService {
     public PokemonDTO detail(Long id) {
         try {
             Optional<Pokemon> pokemonOptional = pokemonRepo.findById(id);
+            Map<String, Type> typeMap = typeRepo.findAll().stream()
+                    .collect(Collectors.toMap(Type::getCode, type -> type));
+            Map<String, Ability> abilityMap = abilityRepo.findAll().stream()
+                    .collect(Collectors.toMap(Ability::getName, ability -> ability));
             if (pokemonOptional.isPresent()) {
                 PokemonDTO pokemonDTO = pokemonMapper.toDto(pokemonOptional.get());
                 try {
@@ -73,20 +78,20 @@ public class PokemonServiceImpl implements PokemonService {
                 }
 
                 if (pokemonDTO.getType1() != null) {
-                    typeRepo.findByCode(pokemonDTO.getType1()).ifPresent(pokemonDTO::setType1Entity);
+                    pokemonDTO.setType1Entity(typeMap.get(pokemonDTO.getType1()));
                 }
                 if (pokemonDTO.getType2() != null) {
-                    typeRepo.findByCode(pokemonDTO.getType2()).ifPresent(pokemonDTO::setType2Entity);
+                    pokemonDTO.setType2Entity(typeMap.get(pokemonDTO.getType2()));
                 }
 
                 if (pokemonDTO.getAbility1() != null) {
-                    abilityRepo.findByName(pokemonDTO.getAbility1()).ifPresent(pokemonDTO::setAbility1E);
+                    pokemonDTO.setAbility1E(abilityMap.get(pokemonDTO.getAbility1()));
                 }
                 if (pokemonDTO.getAbility2() != null) {
-                    abilityRepo.findByName(pokemonDTO.getAbility2()).ifPresent(pokemonDTO::setAbility2E);
+                    pokemonDTO.setAbility2E(abilityMap.get(pokemonDTO.getAbility2()));
                 }
                 if (pokemonDTO.getAbilityHidden() != null) {
-                    abilityRepo.findByName(pokemonDTO.getAbilityHidden()).ifPresent(pokemonDTO::setAbilityHiddenE);
+                    pokemonDTO.setAbilityHiddenE(abilityMap.get(pokemonDTO.getAbilityHidden()));
                 }
 
                 // Set evolution details
@@ -105,6 +110,9 @@ public class PokemonServiceImpl implements PokemonService {
                 // set special evolution
                 pokemonDTO.setSpecialForm(getSpecialForm(id, evolutions, mapConditions, mapItem));
 
+                // set pokemon moves
+                pokemonDTO.setPokemonMoves(getPokemonMove(id, typeMap));
+
                 return pokemonDTO;
             }
             return null;
@@ -112,6 +120,43 @@ public class PokemonServiceImpl implements PokemonService {
             e.getStackTrace();
             throw new BusinessException("Error", e);
         }
+    }
+
+    private List<PokemonMoveDTO> getPokemonMove(Long id, Map<String, Type> typeMap) {
+        List<PokemonMoveDTO> rs = new ArrayList<>();
+        try {
+            List<PokemonMoveDTO> pokemonMoves = pokemonMoveMapper.toDto(pokemonMoveRepo.findByPokemonId(id));
+            if (!DataUtils.isNullOrEmpty(pokemonMoves)) {
+                List<Long> moveIds = pokemonMoves.stream()
+                        .map(PokemonMoveDTO::getMoveId)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                Map<Long, MoveDTO> moveMap = moveRepo.findAllById(moveIds).stream()
+                        .map(moveMapper::toDto)
+                        .collect(Collectors.toMap(MoveDTO::getId, dto -> dto));
+
+                for (PokemonMoveDTO move : pokemonMoves) {
+                    MoveDTO moveDTO = moveMap.get(move.getMoveId());
+                    if (moveDTO != null) {
+                        Type type = typeMap.get(moveDTO.getType());
+                        if (type != null) {
+                            moveDTO.setTypeBgColor(type.getBgHexColor());
+                            moveDTO.setTypeTextColor(type.getTextHexColor());
+                            moveDTO.setTypeName(type.getName());
+                        } else {
+                            log.warn("Type not found for move: {}", moveDTO.getName());
+                        }
+                        move.setMove(moveDTO);
+                        rs.add(move);
+                    }
+                }
+                return rs;
+            }
+        } catch (Exception e) {
+            log.error("Error getting Pokemon moves for id {}: {}", id, e.getMessage());
+        }
+        return null;
     }
 
     private List<EvolutionChainDTO> getSpecialForm(Long id, List<Evolution> evolutions, Map<Long, List<EvolutionConditionDTO>> mapConditions, Map<String, ItemDTO> mapItem) {

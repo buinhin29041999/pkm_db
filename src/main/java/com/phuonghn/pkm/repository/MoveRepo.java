@@ -11,12 +11,12 @@ public interface MoveRepo extends JpaRepository<Move, Long> {
 
     @Query("SELECT new com.phuonghn.pkm.service.dto.MoveDTO(" +
             " m.id, m.name, m.accuracy, m.pp, m.power," +
-            " m.priority, m.type, t.name, m.generation, gpg.value," +
-            " m.shortDescription, m.damageClass, gpdc.value) " +
+            " m.priority, t.name, m.type, m.generation, gpg.value," +
+            " m.damageClass, m.shortDescription, gpdc.value) " +
             " FROM Move m join Type t on t.code = m.type" +
             " left join GlobalParam gpg on gpg.code = m.generation" +
             " left join GlobalParam gpdc on gpdc.code = m.damageClass" +
-            " WHERE (:name IS NULL OR m.name LIKE %:name%) " +
+            " WHERE (:name IS NULL OR upper(m.name) LIKE concat('%', upper(:name), '%')) " +
             " AND (:type IS NULL OR m.type = :type) " +
             " AND (:damageClass IS NULL OR m.damageClass = :damageClass) " +
             " AND (:generation IS NULL OR m.generation = :generation)" +

@@ -17,11 +17,14 @@ public class GlobalParamDTO {
     private String type;
     private List<String> types;
     private String description;
-    public GlobalParamDTO(Long id, String code, String value, String type, String description) {
+    private Long position;
+    private String icon;
+    public GlobalParamDTO(Long id, String code, String value, String type, String description, String icon) {
         this.id = id;
         this.code = code;
         this.value = value;
         this.type = type;
         this.description = description;
+        this.icon = icon;
     }
 }

@@ -24,4 +24,10 @@ public class GlobalParam {
     @Basic
     @Column(name = "description")
     private String description;
+    @Basic
+    @Column(name = "position")
+    private Long position;
+    @Basic
+    @Column(name = "icon")
+    private String icon;
 }
