@@ -3,10 +3,8 @@ package com.phuonghn.pkm.service.impl;
 import com.phuonghn.pkm.common.Constants;
 import com.phuonghn.pkm.common.exeption.BusinessException;
 import com.phuonghn.pkm.common.utils.DataUtils;
-import com.phuonghn.pkm.entity.Ability;
 import com.phuonghn.pkm.entity.Evolution;
 import com.phuonghn.pkm.entity.Pokemon;
-import com.phuonghn.pkm.entity.Type;
 import com.phuonghn.pkm.repository.*;
 import com.phuonghn.pkm.service.PokemonService;
 import com.phuonghn.pkm.service.dto.*;
@@ -14,13 +12,11 @@ import com.phuonghn.pkm.service.mapper.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +37,8 @@ public class PokemonServiceImpl implements PokemonService {
     private final PokemonMoveRepo pokemonMoveRepo;
     private final MoveRepo moveRepo;
     private final MoveMapper moveMapper;
+    private final TypeMapper typeMapper;
+    private final AbilityMapper abilityMapper;
     @Value("${image.pokemon-large}")
     private String imgPokemonLarge;
     @Value("${image.pokemon-icon}")
@@ -64,18 +62,15 @@ public class PokemonServiceImpl implements PokemonService {
     public PokemonDTO detail(Long id) {
         try {
             Optional<Pokemon> pokemonOptional = pokemonRepo.findById(id);
-            Map<String, Type> typeMap = typeRepo.findAll().stream()
-                    .collect(Collectors.toMap(Type::getCode, type -> type));
-            Map<String, Ability> abilityMap = abilityRepo.findAll().stream()
-                    .collect(Collectors.toMap(Ability::getName, ability -> ability));
+            Map<String, TypeDTO> typeMap = typeRepo.findAll().stream()
+                    .map(typeMapper::toDto)
+                    .collect(Collectors.toMap(TypeDTO::getCode, type -> type));
+            Map<Long, AbilityDTO> abilityMap = abilityRepo.findAll().stream()
+                    .map(abilityMapper::toDto)
+                    .collect(Collectors.toMap(AbilityDTO::getId, ability -> ability));
             if (pokemonOptional.isPresent()) {
                 PokemonDTO pokemonDTO = pokemonMapper.toDto(pokemonOptional.get());
-                try {
-                    ClassPathResource resource = new ClassPathResource(imgPokemonLarge + pokemonDTO.getImgLarge());
-                    pokemonDTO.setImgLarge("data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath())));
-                } catch (Exception e) {
-                    log.error("Error reading image file: {}", e.getMessage());
-                }
+                pokemonDTO.setImgLarge(DataUtils.loadImageAsBase64(imgPokemonLarge + pokemonDTO.getImgLarge()));
 
                 if (pokemonDTO.getType1() != null) {
                     pokemonDTO.setType1Entity(typeMap.get(pokemonDTO.getType1()));
@@ -122,7 +117,7 @@ public class PokemonServiceImpl implements PokemonService {
         }
     }
 
-    private List<PokemonMoveDTO> getPokemonMove(Long id, Map<String, Type> typeMap) {
+    private List<PokemonMoveDTO> getPokemonMove(Long id, Map<String, TypeDTO> typeMap) {
         List<PokemonMoveDTO> rs = new ArrayList<>();
         try {
             List<PokemonMoveDTO> pokemonMoves = pokemonMoveMapper.toDto(pokemonMoveRepo.findByPokemonId(id));
@@ -139,7 +134,7 @@ public class PokemonServiceImpl implements PokemonService {
                 for (PokemonMoveDTO move : pokemonMoves) {
                     MoveDTO moveDTO = moveMap.get(move.getMoveId());
                     if (moveDTO != null) {
-                        Type type = typeMap.get(moveDTO.getType());
+                        TypeDTO type = typeMap.get(moveDTO.getType());
                         if (type != null) {
                             moveDTO.setTypeBgColor(type.getBgHexColor());
                             moveDTO.setTypeTextColor(type.getTextHexColor());
@@ -183,7 +178,7 @@ public class PokemonServiceImpl implements PokemonService {
                         for (EvolutionConditionDTO condition : conditions) {
                             if (condition.getItemCode() != null) {
                                 ItemDTO item = mapItem.get(condition.getItemCode());
-                                item.setImageUrl(loadImageAsBase64(imgItems + item.getImage()));
+                                item.setImageUrl(DataUtils.loadImageAsBase64(imgItems + item.getImage()));
                                 if (item != null) {
                                     condition.setItem(item);
                                 }
@@ -216,7 +211,7 @@ public class PokemonServiceImpl implements PokemonService {
 
             for (EvolutionChainDTO chain : chainDTOS) {
                 PokemonDTO dto = chain.getPokemon();
-                dto.setImgLarge(loadImageAsBase64(imgPokemonIcon + dto.getImgLarge()));
+                dto.setImgLarge(DataUtils.loadImageAsBase64(imgPokemonIcon + dto.getImgLarge()));
 
                 // Set điều kiện tiến hóa
                 if (chain.getParentId() != null) {
@@ -230,7 +225,7 @@ public class PokemonServiceImpl implements PokemonService {
                         for (EvolutionConditionDTO condition : conditions) {
                             if (condition.getItemCode() != null) {
                                 ItemDTO item = mapItem.get(condition.getItemCode());
-                                item.setImageUrl(loadImageAsBase64(imgItems + item.getImage()));
+                                item.setImageUrl(DataUtils.loadImageAsBase64(imgItems + item.getImage()));
                                 if (item != null) {
                                     condition.setItem(item);
                                 }
@@ -244,16 +239,6 @@ public class PokemonServiceImpl implements PokemonService {
         } catch (Exception e) {
             log.error("Error getting evolution chain for id {}: {}", id, e.getMessage());
             return Collections.emptyList();
-        }
-    }
-
-    private String loadImageAsBase64(String path) {
-        try {
-            ClassPathResource resource = new ClassPathResource(path);
-            return "data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath()));
-        } catch (Exception e) {
-            log.warn("Image not found: {}", path);
-            return null;
         }
     }
 

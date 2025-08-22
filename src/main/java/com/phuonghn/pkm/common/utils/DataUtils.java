@@ -2,10 +2,12 @@ package com.phuonghn.pkm.common.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -17,9 +19,8 @@ import java.util.stream.Collectors;
 
 public class DataUtils {
 
-    private static Logger log = LoggerFactory.getLogger(DataUtils.class);
-
     public static final char DEFAULT_ESCAPE_CHAR_QUERY = '\\';
+    private static Logger log = LoggerFactory.getLogger(DataUtils.class);
 
     public static boolean isNullOrEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
@@ -331,6 +332,16 @@ public class DataUtils {
         cal.set(Calendar.MILLISECOND, 0);
         cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         return cal.getTime();
+    }
+
+    public static String loadImageAsBase64(String path) {
+        try {
+            ClassPathResource resource = new ClassPathResource(path);
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(resource.getFile().toPath()));
+        } catch (Exception e) {
+            log.warn("Image not found: {}", path);
+            return null;
+        }
     }
 
 }

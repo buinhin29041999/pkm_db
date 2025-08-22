@@ -1,7 +1,5 @@
 package com.phuonghn.pkm.service.dto;
 
-import com.phuonghn.pkm.entity.Ability;
-import com.phuonghn.pkm.entity.Type;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,18 +23,18 @@ public class PokemonDTO implements Serializable {
     private String species;
     private Integer typeNumber;
     private String type1;
-    private Type type1Entity;
+    private TypeDTO type1Entity;
     private String type2;
-    private Type type2Entity;
+    private TypeDTO type2Entity;
     private Double heightM;
     private Double weightKg;
     private Integer abilitiesNumber;
-    private String ability1;
-    private String ability2;
-    private String abilityHidden;
-    private Ability ability1E;
-    private Ability ability2E;
-    private Ability abilityHiddenE;
+    private Long ability1;
+    private Long ability2;
+    private Long abilityHidden;
+    private AbilityDTO ability1E;
+    private AbilityDTO ability2E;
+    private AbilityDTO abilityHiddenE;
     private Integer totalPoints;
     private Integer hp;
     private Integer attack;
@@ -83,5 +81,14 @@ public class PokemonDTO implements Serializable {
         this.id = id;
         this.pokedexNumber = pokedexNumber;
         this.name = name;
+    }
+
+    public PokemonDTO(Long id, String pokedexNumber, String name, String imgIcon, String type1, String type2) {
+        this.id = id;
+        this.pokedexNumber = pokedexNumber;
+        this.name = name;
+        this.imgIcon = imgIcon;
+        this.type1 = type1;
+        this.type2 = type2;
     }
 }

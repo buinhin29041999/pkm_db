@@ -53,13 +53,13 @@ public class Pokemon {
     private Integer abilitiesNumber;
     @Basic
     @Column(name = "ability_1", nullable = true)
-    private String ability1;
+    private Long ability1;
     @Basic
     @Column(name = "ability_2", nullable = true)
-    private String ability2;
+    private Long ability2;
     @Basic
     @Column(name = "ability_hidden", nullable = true)
-    private String abilityHidden;
+    private Long abilityHidden;
     @Basic
     @Column(name = "total_points", nullable = true)
     private Integer totalPoints;

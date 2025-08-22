@@ -22,5 +22,5 @@ public class Ability {
     private String descriptionVn;
     @Basic
     @Column(name = "generation", nullable = true, length = 500)
-    private Long generation;
+    private String generation;
 }
